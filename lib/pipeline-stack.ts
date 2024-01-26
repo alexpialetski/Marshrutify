@@ -17,7 +17,7 @@ export class PipelineStack extends cdk.Stack {
             ),
           }
         ),
-        commands: ["npm ci", "npm run build", "npx cdk synth"],
+        commands: ["npm ci", "npm run build", "npm run test", "npx cdk synth"],
       }),
     });
 
@@ -26,19 +26,14 @@ export class PipelineStack extends cdk.Stack {
     pipeline.addStage(prod, {
       stackSteps: [
         {
-          stack: prod.primaryStack,
-          pre: [
-            new cdk.pipelines.ShellStep("Unit tests", {
-              commands: ["npm run test"],
-            }),
-          ],
+          stack: prod.stack,
           changeSet: [
             new cdk.pipelines.ManualApprovalStep("ChangeSet Approval"),
           ],
           post: [
             new cdk.pipelines.ShellStep("Integration tests", {
               envFromCfnOutputs: {
-                URL: prod.primaryStack.urlOutput,
+                URL: prod.stack.urlOutput,
               },
               commands: ["curl -Ssf $URL"], // TODO use actual integration tests
             }),

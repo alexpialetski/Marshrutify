@@ -3,11 +3,11 @@ import { Construct } from "constructs";
 import { MarshrutifyStack } from "./marshrutify-stack";
 
 export class MarshrutifyStackStage extends cdk.Stage {
-  public readonly primaryStack: MarshrutifyStack;
+  public readonly stack: MarshrutifyStack;
 
   constructor(scope: Construct, id: string, props?: cdk.StageProps) {
     super(scope, id, props);
 
-    this.primaryStack = new MarshrutifyStack(this, "MarshrutifyStack");
+    this.stack = new MarshrutifyStack(this, "MarshrutifyStack");
   }
 }
