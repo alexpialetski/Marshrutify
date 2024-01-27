@@ -11,7 +11,7 @@ Application developed to notify about bus availability on the requested date. Ar
 
 # Deployment
 
-This project is set up with AWS CDK.
+This project is set up with AWS CDK. If AWS environment (account) is not bootstrapped yet: `cdk bootstrap`
 
 ## CLI
 
