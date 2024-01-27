@@ -2,7 +2,7 @@
   "name": "marshrutify",
   "version": "0.1.0",
   "bin": {
-    "marshrutify": "bin/marshrutify.js"
+    "marshrutify": "dist/bin/marshrutify.js"
   },
   "scripts": {
     "build": "tsc",
