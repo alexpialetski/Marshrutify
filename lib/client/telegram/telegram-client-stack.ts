@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { AwsCustomResource } from "aws-cdk-lib/custom-resources";
+// import { AwsCustomResource } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
 import path = require("path");
 

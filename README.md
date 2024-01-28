@@ -4,14 +4,24 @@ Application developed to notify about bus availability on the requested date. Ar
 
 # Table of contents
 
-1. [Deployment](#deployment)
+1. [Clients](#clients)
+   1. [Telegram](#telegram)
+2. [Deployment](#deployment)
    1. [CLI](#cli)
    2. [CI/CD](#cicd)
-2. [CDK](#cdk)
+3. [CDK](#cdk)
 
-# Deployment
+# .env file
 
-This project is set up with AWS CDK. If AWS environment (account) is not bootstrapped yet: `cdk bootstrap`
+```bash
+TELEGRAM_BOT_TOKEN=
+GITHUB_TOKEN=
+AWS_CLI_PROFILE=
+```
+
+# Setup
+
+This project is hosted on AWS. IaC tool is AWS CDK.
 
 ## CLI
 
@@ -22,9 +32,7 @@ CLI setup is needed for:
 - CDK cli
   - [CDK setup](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html)
 
-## CI/CD
-
-In order for CI/CD to work with this repository **Github access token** should be put in the Secrets Manager in AWS.
+## Setup
 
 Github access token **MarshrutifyCodepipeline** should be <ins>scoped</ins> to this repository and have <ins>minimum set of rights</ins>:
 
@@ -33,7 +41,19 @@ Github access token **MarshrutifyCodepipeline** should be <ins>scoped</ins> to t
 - Metadata
 - Webhooks
 
-Secrets Manager token name is **marshrutify-github-token**.
+Run command `npm run setup:env` to set up AWS account
+
+# Clients
+
+## Telegram
+
+### Commands
+
+start - Start
+info - View user info and ongoing monitors
+setup - Reconfigure user info
+monitor - Set monitor to listen for availability of bus seats
+stop_monitor - Stop running monitor
 
 # CDK
 
