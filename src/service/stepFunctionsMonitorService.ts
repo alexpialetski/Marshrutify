@@ -40,12 +40,12 @@ export class StepFunctionsMonitorService extends MonitorService {
     return ddbDocClient
       .query({
         TableName: this.tableName,
-        IndexName: MONITOR_TABLE_GSI_NAME, // replace with your actual GSI name
+        IndexName: MONITOR_TABLE_GSI_NAME,
         KeyConditionExpression:
           "#status = :statusVal and begins_with(#userIdKey, :userId)",
         ExpressionAttributeValues: {
-          ":statusVal": { S: "IN_PROGRESS" as MonitorInfo["status"] }, // S type for strings
-          ":userId": { S: userId }, // S type for strings
+          ":statusVal": "IN_PROGRESS" as MonitorInfo["status"],
+          ":userId": userId,
         },
         ExpressionAttributeNames: {
           "#status": "status" as DynamoMonitorInfoKey,
