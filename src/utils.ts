@@ -1,5 +1,7 @@
 import { EventEmitter } from "stream";
 
+import { ENVVariable } from "./types/env";
+
 export const delay =
   (ms: number) =>
   <T>(arg: T): Promise<T> =>
@@ -7,6 +9,9 @@ export const delay =
 
 export const addDays = (date: Date, numberOfDays: number) =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate() + numberOfDays);
+
+export const addMinutes = (date: Date, minutes: number): Date =>
+  new Date(date.getTime() + minutes * 60000);
 
 type EventMapKey = string | symbol;
 
@@ -24,3 +29,21 @@ export class TypedEventEmitter<
 
 export const getRandomInt = (max: number): number =>
   Math.floor(Math.random() * max);
+
+type ArrayAsObjectKeys<T extends string[]> = { [key in T[number]]: string };
+
+export const killIfNoEnvVariables = <T extends ENVVariable[]>(
+  requiredEnvVars: T
+): ArrayAsObjectKeys<T> =>
+  requiredEnvVars.reduce((acc, envVar) => {
+    const value = process.env[envVar as string];
+    if (!value) {
+      const errorMessage = `Missing required environment variable: ${String(
+        envVar
+      )}`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    return { ...acc, [envVar]: value };
+  }, {} as ArrayAsObjectKeys<T>); // "as" is okay, because there is no risk as absence of env variable will kill process

@@ -1,4 +1,5 @@
-import { UserInfo } from "../types/user";
+import { UserInfo } from "~/types/user";
+
 import { UserService } from "./userService";
 
 const MEMORY_USER_INFO = new Map<string, UserInfo>();

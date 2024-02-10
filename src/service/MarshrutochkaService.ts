@@ -1,7 +1,8 @@
 import { parse, HTMLElement } from "node-html-parser";
 import fetch from "node-fetch-commonjs";
 
-import { DestinationInfo } from "../types/path";
+import { DestinationInfo } from "~/types/path";
+
 import { AvailableTimeSlot, BusProviderService } from "./busProviderService";
 
 const MARSHRUTOCHKA_HOST = "https://xn--90aiim0b.xn--80aa3agllaqi6bg.xn--90ais";

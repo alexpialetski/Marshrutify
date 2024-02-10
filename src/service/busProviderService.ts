@@ -1,5 +1,6 @@
-import { BusProvider } from "../types/busProvider";
-import { DestinationInfo } from "../types/path";
+import { BusProvider } from "~/types/busProvider";
+import { DestinationInfo } from "~/types/path";
+
 import { addDays } from "../utils";
 
 export type AvailableTimeSlot = string; // like 12:45

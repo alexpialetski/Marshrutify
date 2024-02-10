@@ -1,9 +1,10 @@
 import { Telegraf, Context } from "telegraf";
 import Calendar from "telegraf-calendar-telegram";
 
+import { isFullUserInfo } from "~/types/user";
+import { ServiceMap } from "~/service/types";
+
 import { getUserId } from "../utils";
-import { ServiceMap } from "../types";
-import { isFullUserInfo } from "../../../types/user";
 import { setUpUserInfo } from "./setUpUserInfoFlow";
 
 export const handleSetUpMonitorFlow = (

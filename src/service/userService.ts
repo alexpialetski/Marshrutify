@@ -1,4 +1,4 @@
-import { UserInfo } from "../types/user";
+import { UserInfo } from "~/types/user";
 
 export abstract class UserService {
   userId: string;

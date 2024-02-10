@@ -1,12 +1,13 @@
 import { Telegraf, Context, Markup } from "telegraf";
 import { Message } from "telegraf/types";
 
-import { BUS_PROVIDERS } from "../../../constants/busProvider";
-import { BusProvider } from "../../../types/busProvider";
-import { ServiceMap } from "../types";
+import { BUS_PROVIDERS } from "~/constants/busProvider";
+import { BusProvider } from "~/types/busProvider";
+import { UserInfo } from "~/types/user";
+import { DestinationInfo } from "~/types/path";
+import { ServiceMap } from "~/service/types";
+
 import { ActionQueryKey, getUserId } from "../utils";
-import { UserInfo } from "../../../types/user";
-import { DestinationInfo } from "../../../types/path";
 
 type Initiator<T = unknown> = (
   ctx: Context,

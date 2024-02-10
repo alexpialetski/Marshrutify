@@ -1,15 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { MonitorData, MonitorInfo } from "../types/monitor";
+import { MonitorData, MonitorEventData, MonitorInfo } from "../types/monitor";
 import { UserInfo } from "../types/user";
 import { AvailableTimeSlot } from "./busProviderService";
 import { DiffData, diff } from "fast-array-diff";
-import { ServiceMap } from "../client/telegram/types";
-
-export type MonitorResultEventData = {
-  monitorInfo: MonitorInfo;
-  prevSlots: AvailableTimeSlot[];
-};
+import { ServiceMap } from "./types";
+import { addMinutes } from "~/utils";
 
 export abstract class MonitorService {
   abstract getRunningMonitorsByUserId(
@@ -18,14 +14,21 @@ export abstract class MonitorService {
 
   abstract getMonitorById(id: MonitorInfo["id"]): Promise<MonitorInfo>;
 
-  abstract startMonitor(monitor: MonitorData): Promise<void>;
+  abstract startMonitor(monitor: MonitorData): Promise<MonitorInfo>;
 
-  abstract stopMonitor(monitorId: MonitorInfo["id"]): Promise<void>;
+  abstract stopMonitor(monitorInfo: MonitorInfo): Promise<void>;
 
   abstract saveMonitor(monitor: MonitorData): Promise<MonitorInfo>;
 
+  abstract prolongMonitor(params: {
+    monitorInfo: MonitorInfo;
+    taskToken: string;
+  }): Promise<void>;
+
+  getTimeout = (): string => addMinutes(new Date(), 20).toISOString();
+
   // for yyyy-mm-dd format
-  convertDate = (date: string): Date => new Date(date);
+  convertToDate = (date: string): Date => new Date(date);
 
   generateMonitorId = (): MonitorInfo["id"] => uuidv4().slice(0, 6);
 
@@ -43,19 +46,21 @@ export abstract class MonitorService {
     ({
       monitorInfo,
       prevSlots,
-    }: MonitorResultEventData): Promise<MonitorResultEventData> =>
+      ...rest
+    }: MonitorEventData): Promise<MonitorEventData> =>
       getBusProviderService(monitorInfo.busProvider)
         .getAvailableTimeSlots({
           from: monitorInfo.from,
           to: monitorInfo.to,
-          date: this.convertDate(monitorInfo.date),
+          date: this.convertToDate(monitorInfo.date),
         })
         .then((slots) => {
           const { added, removed } = this.getDiffOfSlots(prevSlots, slots);
 
           return getClientService(monitorInfo.client)
             .notifyAboutAvailability({ added, removed, monitorInfo })
-            .then<MonitorResultEventData>(() => ({
+            .then<MonitorEventData>(() => ({
+              ...rest,
               monitorInfo,
               prevSlots: slots,
             }));
