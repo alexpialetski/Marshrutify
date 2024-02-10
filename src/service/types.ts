@@ -1,9 +1,9 @@
-import { BusProviderService } from "../../service/busProviderService";
-import { ClientService } from "../../service/clientService";
-import { MonitorService } from "../../service/monitorService";
-import { UserService } from "../../service/userService";
-import { BusProvider } from "../../types/busProvider";
-import { Client } from "../../types/client";
+import { BusProviderService } from "~/service/busProviderService";
+import { ClientService } from "~/service/clientService";
+import { MonitorService } from "~/service/monitorService";
+import { UserService } from "~/service/userService";
+import { BusProvider } from "~/types/busProvider";
+import { Client } from "~/types/client";
 
 export type GetUserServiceFn = (userId: string) => UserService;
 

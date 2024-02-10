@@ -1,6 +1,7 @@
 import { Context } from "telegraf";
-import { MonitorInfo } from "../../types/monitor";
-import { FullUserInfo, UserInfo } from "../../types/user";
+
+import { MonitorInfo } from "~/types/monitor";
+import { FullUserInfo, UserInfo } from "~/types/user";
 
 // TODO: think about "!"
 export const getUserId = (ctx: Context): string => String(ctx.chat!.id);

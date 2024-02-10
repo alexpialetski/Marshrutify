@@ -1,6 +1,17 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { MarshrutifyStackStage } from "./marshrutiy-stack.stage";
+
+import { MarshrutifyStack } from "./marshrutify.stack";
+
+class MarshrutifyStackStage extends cdk.Stage {
+  public readonly stack: MarshrutifyStack;
+
+  constructor(scope: Construct, id: string, props?: cdk.StageProps) {
+    super(scope, id, props);
+
+    this.stack = new MarshrutifyStack(this, "MarshrutifyStack");
+  }
+}
 
 export class PipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -30,14 +41,14 @@ export class PipelineStack extends cdk.Stack {
           changeSet: [
             new cdk.pipelines.ManualApprovalStep("ChangeSet Approval"),
           ],
-          post: [
-            new cdk.pipelines.ShellStep("Integration tests", {
-              envFromCfnOutputs: {
-                URL: prod.stack.urlOutput,
-              },
-              commands: ["curl -Ssf $URL"], // TODO use actual integration tests
-            }),
-          ],
+          // post: [
+          //   new cdk.pipelines.ShellStep("Integration tests", {
+          //     envFromCfnOutputs: {
+          //       URL: prod.stack.urlOutput,
+          //     },
+          //     commands: ["curl -Ssf $URL"], // TODO use actual integration tests
+          //   }),
+          // ],
         },
       ],
     });

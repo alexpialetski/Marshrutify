@@ -1,7 +1,7 @@
-import { MonitorResultEventData, MonitorService } from "./monitorService";
-import { MonitorData, MonitorInfo } from "../types/monitor";
-import { TypedEventEmitter } from "../utils";
-import { AvailableTimeSlot } from "./busProviderService";
+import { MonitorData, MonitorEventData, MonitorInfo } from "~/types/monitor";
+import { TypedEventEmitter, addMinutes } from "~/utils";
+
+import { MonitorService } from "./monitorService";
 
 type Monitor = {
   monitorInfo: MonitorInfo;
@@ -50,7 +50,7 @@ class MonitorsArray {
 }
 
 type EventMap = {
-  seatNotifier: MonitorResultEventData;
+  seatNotifier: MonitorEventData;
 };
 
 export class EventEmitterMonitorService extends MonitorService {
@@ -92,6 +92,7 @@ export class EventEmitterMonitorService extends MonitorService {
       ...monitorData,
       id: this.generateMonitorId(),
       status: "IN_PROGRESS",
+      arn: "",
     };
 
     this.monitors.addMonitor(monitorInfo);
@@ -99,20 +100,35 @@ export class EventEmitterMonitorService extends MonitorService {
     return Promise.resolve(monitorInfo);
   }
 
-  startMonitor(monitorData: MonitorData): Promise<void> {
+  startMonitor(monitorData: MonitorData): Promise<MonitorInfo> {
     return this.saveMonitor(monitorData).then((monitorInfo) => {
-      this.eventEmiter.emit("seatNotifier", { monitorInfo, prevSlots: [] });
+      this.eventEmiter.emit("seatNotifier", {
+        monitorInfo,
+        prevSlots: [],
+        timeOutTime: addMinutes(new Date(), 5).toUTCString(),
+      });
+
+      return monitorInfo;
     });
   }
 
-  stopMonitor(monitorId: string): Promise<void> {
-    return Promise.resolve().then(() => this.monitors.stopMonitor(monitorId));
+  stopMonitor(monitorInfo: MonitorInfo): Promise<void> {
+    return Promise.resolve().then(() =>
+      this.monitors.stopMonitor(monitorInfo.id)
+    );
+  }
+
+  prolongMonitor(_: {
+    monitorInfo: MonitorInfo;
+    taskToken: string;
+  }): Promise<void> {
+    return Promise.reject("Not implemented.");
   }
 
   cleanUp = () => this.monitors.stopAllMonitors();
 
   subscribe = (
-    func: (payload: EventMap["seatNotifier"]) => Promise<MonitorResultEventData>
+    func: (payload: EventMap["seatNotifier"]) => Promise<MonitorEventData>
   ): void => {
     this.eventEmiter.on("seatNotifier", (payload) =>
       func(payload).then((resultData) => {

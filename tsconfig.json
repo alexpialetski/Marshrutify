@@ -19,7 +19,10 @@
     "strictPropertyInitialization": false,
     "typeRoots": ["./node_modules/@types", "./@types"],
     "outDir": "dist",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "~/*": ["./src/*"]
+    }
   },
   "exclude": ["node_modules", "cdk.out", "dist"]
 }

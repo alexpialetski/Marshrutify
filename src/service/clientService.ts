@@ -1,7 +1,9 @@
-import { Client } from "../types/client";
-import { MonitorInfo } from "../types/monitor";
-import { UserInfo } from "../types/user";
+import { Client } from "~/types/client";
+import { MonitorInfo } from "~/types/monitor";
+import { UserInfo } from "~/types/user";
+
 import { AvailableTimeSlot } from "./busProviderService";
+import { MonitorService } from "./monitorService";
 
 export abstract class ClientService {
   clientName: Client;
@@ -20,4 +22,9 @@ export abstract class ClientService {
     userId: UserInfo["id"],
     text: string
   ) => Promise<unknown>;
+
+  abstract notifyAboutUnsubscription: (params: {
+    monitorInfo: MonitorInfo;
+    taskToken: string;
+  }) => Promise<unknown>;
 }

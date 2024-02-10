@@ -1,5 +1,6 @@
-import { DestinationInfo } from "../types/path";
-import { getRandomInt } from "../utils";
+import { DestinationInfo } from "~/types/path";
+import { getRandomInt } from "~/utils";
+
 import { AvailableTimeSlot, BusProviderService } from "./busProviderService";
 
 const TEST_DEST_INFO1: DestinationInfo = { id: "testid1", name: "Test 1" };

@@ -1,11 +1,12 @@
 import { Telegraf } from "telegraf";
 import columnify from "columnify";
 
-import { ServiceMap } from "./types";
+import { isFullUserInfo } from "~/types/user";
+import { ServiceMap } from "~/service/types";
+
 import { ColumnifyMap, getUserId } from "./utils";
 import { handleSetUpUserInfo, setUpUserInfo } from "./flow/setUpUserInfoFlow";
 import { handleSetUpMonitorFlow, setUpMonitor } from "./flow/setUpMonitorFlow";
-import { isFullUserInfo } from "../../types/user";
 import { handleStopMonitor, stopMonitorFlow } from "./flow/stopMonitorFlow";
 
 export const setUpBot = (bot: Telegraf, serviceMap: ServiceMap): Telegraf => {

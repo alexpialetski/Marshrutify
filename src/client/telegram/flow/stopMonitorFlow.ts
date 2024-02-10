@@ -1,11 +1,10 @@
 import { Context, Markup, Telegraf } from "telegraf";
 import columnify from "columnify";
 
-import { ServiceMap } from "../types";
+import { MonitorInfo } from "~/types/monitor";
+import { ServiceMap } from "~/service/types";
+
 import { ActionQueryKey, ColumnifyMap, getUserId } from "../utils";
-import { isFullUserInfo } from "../../../types/user";
-import { setUpUserInfo } from "./setUpUserInfoFlow";
-import { MonitorInfo } from "../../../types/monitor";
 
 const stopMonitorActionQuery = ActionQueryKey<{
   id: MonitorInfo["id"];
@@ -17,9 +16,11 @@ export const handleStopMonitor = (
 ) => {
   bot.action(stopMonitorActionQuery.baseAsRegex, (ctx, next) => {
     const { id } = stopMonitorActionQuery.deserialize(ctx.match.input);
+    const monitorService = getMonitorService();
 
-    return getMonitorService()
-      .stopMonitor(id)
+    return monitorService
+      .getMonitorById(id)
+      .then(monitorService.stopMonitor)
       .then(() => ctx.reply(`Stopped poor slave with id: ${id}`))
       .then(() => next());
   });

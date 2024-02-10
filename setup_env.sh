@@ -13,18 +13,28 @@ aws sso login
 
 cdk bootstrap
 
-SECRET_NAME="marshrutify-github-token"
-SECRET_VALUE="$GITHUB_TOKEN"
+declare -A SECRETS
+SECRETS=(
+    ["marshrutify-github-token"]="$GITHUB_TOKEN"
+    ["marshrutify-telegram-bot-token"]="$TELEGRAM_BOT_TOKEN"
+)
 
-if aws secretsmanager describe-secret --secret-id "$SECRET_NAME" >/dev/null 2>&1; then
-    aws secretsmanager put-secret-value \
-        --secret-id "$SECRET_NAME"  \
-        --secret-string "$SECRET_VALUE"
-    echo "Secret updated: $SECRET_NAME"
-else
-    aws secretsmanager create-secret \
-        --name "$SECRET_NAME"  \
-        --description "Marshrutify Github access token." \
-        --secret-string "$SECRET_VALUE"
-    echo "Secret created: $SECRET_NAME"
-fi
+for SECRET_NAME in "${!SECRETS[@]}"; do
+    SECRET_VALUE="${SECRETS[$SECRET_NAME]}"
+
+    # Check if secret already exists
+    if aws secretsmanager describe-secret --secret-id "$SECRET_NAME" >/dev/null 2>&1; then
+        # If secret exists, update it
+        aws secretsmanager put-secret-value \
+            --secret-id "$SECRET_NAME" \
+            --secret-string "$SECRET_VALUE"
+        echo "Secret updated: $SECRET_NAME"
+    else
+        # If secret doesn't exist, create it
+        aws secretsmanager create-secret \
+            --name "$SECRET_NAME" \
+            --description "Secret for $SECRET_NAME." \
+            --secret-string "$SECRET_VALUE"
+        echo "Secret created: $SECRET_NAME"
+    fi
+done
