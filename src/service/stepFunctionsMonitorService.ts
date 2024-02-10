@@ -29,6 +29,8 @@ type DynamoMonitorInfo = MonitorInfo & {
   userId_date: string;
 };
 
+type DynamoMonitorInfoKey = keyof DynamoMonitorInfo;
+
 export class StepFunctionsMonitorService extends MonitorService {
   tableName = MONITOR_TABLE_NAME;
 
@@ -40,10 +42,14 @@ export class StepFunctionsMonitorService extends MonitorService {
         TableName: this.tableName,
         IndexName: MONITOR_TABLE_GSI_NAME, // replace with your actual GSI name
         KeyConditionExpression:
-          "status = :statusVal and begins_with(userId_date, :userId)",
+          "#status = :statusVal and begins_with(#userIdKey, :userId)",
         ExpressionAttributeValues: {
           ":statusVal": { S: "IN_PROGRESS" as MonitorInfo["status"] }, // S type for strings
           ":userId": { S: userId }, // S type for strings
+        },
+        ExpressionAttributeNames: {
+          "#status": "status" as DynamoMonitorInfoKey,
+          "#userIdKey": "userId_date" as DynamoMonitorInfoKey,
         },
       })
       .then(({ Items }) => Items as DynamoMonitorInfo[]);
