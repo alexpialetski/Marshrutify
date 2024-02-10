@@ -8,6 +8,7 @@ import { monitorStartedEvent } from "~/events/monitorStartedEvent";
 import { monitorUnsubscriptionNotificationEvent } from "~/events/monitorUnsubscriptionNotificationEvent";
 
 import { MonitorConstructProps } from "./types";
+import { getTelegramBotTokenSecret } from "../../utils";
 
 export class MonitorStateMachineConstruct extends Construct {
   public readonly stateMachine: sfn.StateMachine;
@@ -39,18 +40,20 @@ export class MonitorStateMachineConstruct extends Construct {
       stateName: "Is timed out?",
     });
 
+    const spotMonitorTickFunction = new cdk.aws_lambda_nodejs.NodejsFunction(
+      this,
+      "SpotMonitorTick",
+      {
+        entry: path.join(__dirname, "spotMonitorTick.function.ts"),
+        environment: props.lambdaEnvs,
+      }
+    );
+
     const spotMonitorTickState = new sfnTasks.LambdaInvoke(
       this,
       "SpotMonitorTick state",
       {
-        lambdaFunction: new cdk.aws_lambda_nodejs.NodejsFunction(
-          this,
-          "SpotMonitorTick",
-          {
-            entry: path.join(__dirname, "spotMonitorTick.function.ts"),
-            environment: props.lambdaEnvs,
-          }
-        ),
+        lambdaFunction: spotMonitorTickFunction,
       }
     );
 
@@ -76,21 +79,24 @@ export class MonitorStateMachineConstruct extends Construct {
         }
       );
 
+    const handleMonitorUnsubscriptionFunction =
+      new cdk.aws_lambda_nodejs.NodejsFunction(
+        this,
+        "HandleMonitorUnsubscription",
+        {
+          entry: path.join(
+            __dirname,
+            "handleMonitorUnsubscription.function.ts"
+          ),
+          environment: props.lambdaEnvs,
+        }
+      );
+
     const handleMonitorUnsubscriptionState = new sfnTasks.LambdaInvoke(
       this,
       "HandleMonitorUnsubscription state",
       {
-        lambdaFunction: new cdk.aws_lambda_nodejs.NodejsFunction(
-          this,
-          "HandleMonitorUnsubscription",
-          {
-            entry: path.join(
-              __dirname,
-              "handleMonitorUnsubscription.function.ts"
-            ),
-            environment: props.lambdaEnvs,
-          }
-        ),
+        lambdaFunction: handleMonitorUnsubscriptionFunction,
       }
     );
 
@@ -111,6 +117,10 @@ export class MonitorStateMachineConstruct extends Construct {
             .next(isTimedOutChoice)
         )
     );
+
+    const telegramBotToken = getTelegramBotTokenSecret(this);
+    telegramBotToken.grantRead(handleMonitorUnsubscriptionFunction);
+    telegramBotToken.grantRead(spotMonitorTickFunction);
 
     this.stateMachine = new sfn.StateMachine(this, "SpotMonitorStateMachine", {
       definitionBody: sfn.DefinitionBody.fromChainable(definition),

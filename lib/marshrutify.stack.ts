@@ -1,23 +1,19 @@
 import * as cdk from "aws-cdk-lib";
 import * as events from "aws-cdk-lib/aws-events";
 import { Construct } from "constructs";
-import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 
 import { MonitorTableConstruct } from "./constructs/monitorTable.construct";
 import { UserTableConstruct } from "./constructs/userTable.construct";
 import { TelegramClientConstruct } from "./client/telegram/telegramClient.construct";
 import { LambdaEnvVariable } from "./types";
 import { SpotMonitorConstruct } from "./constructs/spotMonitor";
+import { getTelegramBotTokenSecret } from "./utils";
 
 export class MarshrutifyStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const telegramBotToken = secretsmanager.Secret.fromSecretNameV2(
-      this,
-      "marshrutify-telegram-bot-token",
-      "marshrutify-telegram-bot-token"
-    );
+    const telegramBotToken = getTelegramBotTokenSecret(this);
 
     const httpApi = new cdk.aws_apigatewayv2.HttpApi(
       this,

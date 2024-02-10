@@ -9,6 +9,7 @@ import { monitorUnsubscriptionNotificationEvent } from "~/events/monitorUnsubscr
 
 import { MonitorConstructProps } from "./types";
 import { MonitorStateMachineConstruct } from "./monitorStateMachine.construct";
+import { getTelegramBotTokenSecret } from "../../utils";
 
 export class SpotMonitorConstruct extends Construct {
   stateMachineArn: cdk.CfnOutput;
@@ -16,23 +17,32 @@ export class SpotMonitorConstruct extends Construct {
   constructor(scope: Construct, id: string, props: MonitorConstructProps) {
     super(scope, id);
 
+    const handleMonitorStartedFunction =
+      new cdk.aws_lambda_nodejs.NodejsFunction(this, "HandleMonitorStarted", {
+        entry: path.join(__dirname, "handleMonitorStarted.function.ts"),
+        environment: props.lambdaEnvs,
+      });
+
+    const handleMonitorUnsubscriptionNotificationFunction =
+      new cdk.aws_lambda_nodejs.NodejsFunction(
+        this,
+        "HandleMonitorUnsubscriptionNotification",
+        {
+          entry: path.join(
+            __dirname,
+            "handleMonitorUnsubscriptionNotification.function.ts"
+          ),
+          environment: props.lambdaEnvs,
+        }
+      );
+
     new events.Rule(this, "MonitorStartedEvent rule", {
       eventPattern: monitorStartedEvent.getEvenRulePattern(),
       eventBus: props.eventBus,
       targets: [
-        new eventsTargets.LambdaFunction(
-          new cdk.aws_lambda_nodejs.NodejsFunction(
-            this,
-            "HandleMonitorStarted",
-            {
-              entry: path.join(__dirname, "handleMonitorStarted.function.ts"),
-              environment: props.lambdaEnvs,
-            }
-          ),
-          {
-            event: events.RuleTargetInput.fromEventPath("$"), // Pass the entire event
-          }
-        ),
+        new eventsTargets.LambdaFunction(handleMonitorStartedFunction, {
+          event: events.RuleTargetInput.fromEventPath("$"), // Pass the entire event
+        }),
       ],
     });
 
@@ -41,17 +51,7 @@ export class SpotMonitorConstruct extends Construct {
       eventBus: props.eventBus,
       targets: [
         new eventsTargets.LambdaFunction(
-          new cdk.aws_lambda_nodejs.NodejsFunction(
-            this,
-            "HandleMonitorUnsubscriptionNotification",
-            {
-              entry: path.join(
-                __dirname,
-                "handleMonitorUnsubscriptionNotification.function.ts"
-              ),
-              environment: props.lambdaEnvs,
-            }
-          ),
+          handleMonitorUnsubscriptionNotificationFunction,
           {
             event: events.RuleTargetInput.fromEventPath("$"), // Pass the entire event
           }
@@ -65,7 +65,11 @@ export class SpotMonitorConstruct extends Construct {
       props
     );
 
-    this.stateMachineArn = new cdk.CfnOutput(this, "MonitorTableNameOutput", {
+    const telegramBotToken = getTelegramBotTokenSecret(this);
+    telegramBotToken.grantRead(handleMonitorStartedFunction);
+    telegramBotToken.grantRead(handleMonitorUnsubscriptionNotificationFunction);
+
+    this.stateMachineArn = new cdk.CfnOutput(this, "StateMachineArnOutput", {
       value: monitorStateMachine.stateMachine.stateMachineArn,
     });
   }

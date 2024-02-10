@@ -5,6 +5,7 @@ import path = require("path");
 import { UserTableConstruct } from "../../constructs/userTable.construct";
 import { MonitorTableConstruct } from "../../constructs/monitorTable.construct";
 import { LambdaEnvVariable } from "../../types";
+import { getTelegramBotTokenSecret } from "../../utils";
 
 interface TelegramClientStackProps {
   readonly httpApi: cdk.aws_apigatewayv2.HttpApi;
@@ -54,6 +55,9 @@ export class TelegramClientConstruct extends Construct {
 
     userTable.table.grantReadWriteData(telegramBotHandler);
     monitorTable.table.grantReadWriteData(telegramBotHandler);
+
+    const telegramBotToken = getTelegramBotTokenSecret(this);
+    telegramBotToken.grantRead(telegramBotHandler);
 
     this.urlOutput = new cdk.CfnOutput(this, "telegram-bot-url", {
       value: telegramBotUrl,
