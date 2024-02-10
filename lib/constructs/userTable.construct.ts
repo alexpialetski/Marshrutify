@@ -8,7 +8,7 @@ export class UserTableConstruct extends Construct {
     super(scope, id);
 
     this.table = new cdk.aws_dynamodb.TableV2(this, "Table", {
-      partitionKey: { name: "pk", type: cdk.aws_dynamodb.AttributeType.STRING },
+      partitionKey: { name: "id", type: cdk.aws_dynamodb.AttributeType.STRING },
     });
 
     new cdk.CfnOutput(this, "UserTableNameOutput", {
