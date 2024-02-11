@@ -42,6 +42,7 @@ export class MonitorStateMachineConstruct extends Construct {
       {
         entry: path.join(__dirname, "functions", "spotMonitorTick.function.ts"),
         environment: props.lambdaEnvs,
+        timeout: cdk.Duration.seconds(10), // some Bus Provider APIs are slow
       }
     );
 
