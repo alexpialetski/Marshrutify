@@ -1,5 +1,5 @@
 import http from "serverless-http";
-import { lambdaRequestTracker, pinoLambdaDestination } from "pino-lambda";
+import { lambdaRequestTracker } from "pino-lambda";
 import { Handler } from "aws-lambda";
 
 import { killIfNoEnvVariables } from "~/utils";

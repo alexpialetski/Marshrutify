@@ -3,6 +3,7 @@ import Calendar from "telegraf-calendar-telegram";
 
 import { isFullUserInfo } from "~/types/user";
 import { ServiceMap } from "~/service/types";
+import { logger } from "~/utils/logger";
 
 import { genericErrorHandler, getUserId } from "../utils";
 import { setUpUserInfo } from "./setUpUserInfoFlow";

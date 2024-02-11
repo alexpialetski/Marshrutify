@@ -103,12 +103,16 @@ class StepFunctionsMonitorService extends MonitorService {
       timeOutTime: this.getTimeout(),
     };
 
+    logger.info(input, "StepFunctionsMonitorService.startMonitor");
+
     const executionInfo = await sfnClient.send(
       new StartExecutionCommand({
         stateMachineArn: STATE_MACHINE_ARN,
         input: JSON.stringify(input),
       })
     );
+
+    logger.info(executionInfo, "StepFunctionsMonitorService.saveMonitor");
 
     return this.saveMonitor({
       ...input.monitorInfo,
