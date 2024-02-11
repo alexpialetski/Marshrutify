@@ -68,7 +68,10 @@ export class MonitorStateMachineConstruct extends Construct {
         {
           entries: [
             {
-              detail: sfn.TaskInput.fromJsonPathAt("$"),
+              detail: sfn.TaskInput.fromObject({
+                monitorEventData: sfn.TaskInput.fromJsonPathAt("$"),
+                taskToken: sfn.JsonPath.taskToken,
+              }),
               eventBus: props.eventBus,
               detailType: monitorStartedEvent.getEventDetailType(),
               source: monitorStartedEvent.getEventSource(),
@@ -76,6 +79,7 @@ export class MonitorStateMachineConstruct extends Construct {
           ],
           resultPath: sfn.JsonPath.DISCARD, // use input instead
           taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(2)),
+          integrationPattern: sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         }
       );
 
