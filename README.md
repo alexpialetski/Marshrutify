@@ -53,7 +53,7 @@ start - Start
 info - View user info and ongoing monitors
 setup - Reconfigure user info
 monitor - Set monitor to listen for availability of bus seats
-stop_monitor - Stop running monitor
+stop_monitor - Stop a running monitor
 
 # CDK
 
