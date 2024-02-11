@@ -19,7 +19,11 @@ export class SpotMonitorConstruct extends Construct {
 
     const handleMonitorStartedFunction =
       new cdk.aws_lambda_nodejs.NodejsFunction(this, "HandleMonitorStarted", {
-        entry: path.join(__dirname, "handleMonitorStarted.function.ts"),
+        entry: path.join(
+          __dirname,
+          "functions",
+          "handleMonitorStarted.function.ts"
+        ),
         environment: props.lambdaEnvs,
       });
 
@@ -30,6 +34,7 @@ export class SpotMonitorConstruct extends Construct {
         {
           entry: path.join(
             __dirname,
+            "functions",
             "handleMonitorUnsubscriptionNotification.function.ts"
           ),
           environment: props.lambdaEnvs,

@@ -1,7 +1,7 @@
 import { TelegramClientService } from "./client/telegram/service";
-import { MarshrutochkaService } from "./service/MarshrutochkaService";
+import { marshrutochkaService } from "./service/MarshrutochkaService";
 import { DynamoDBUserService } from "./service/dynamoDBUserService";
-import { StepFunctionsMonitorService } from "./service/stepFunctionsMonitorService";
+import { stepFunctionsMonitorService } from "./service/stepFunctionsMonitorService";
 import {
   GetBusProviderServiceFn,
   GetClientServiceFn,
@@ -14,13 +14,13 @@ const getUserService: GetUserServiceFn = (userId) =>
   new DynamoDBUserService(userId);
 const getBusProviderService: GetBusProviderServiceFn = (busProvider) => {
   if (busProvider === "MARSHRUTOCHKA") {
-    return new MarshrutochkaService();
+    return marshrutochkaService;
   }
 
-  return new MarshrutochkaService();
+  return marshrutochkaService;
 };
 const getMonitorService: GetMonitorServiceFn = () =>
-  new StepFunctionsMonitorService();
+  stepFunctionsMonitorService;
 
 export {
   getClientService,

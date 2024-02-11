@@ -4,7 +4,7 @@ import Calendar from "telegraf-calendar-telegram";
 import { isFullUserInfo } from "~/types/user";
 import { ServiceMap } from "~/service/types";
 
-import { getUserId } from "../utils";
+import { genericErrorHandler, getUserId } from "../utils";
 import { setUpUserInfo } from "./setUpUserInfoFlow";
 
 export const handleSetUpMonitorFlow = (
@@ -28,7 +28,8 @@ export const handleSetUpMonitorFlow = (
         to: userInfo.to,
         userId: userInfo.id,
       })
-      .then(() => ctx.reply("Monitor is set up. Wait for notifications"));
+      .then(() => ctx.reply("Monitor is set up. Wait for notifications"))
+      .catch(genericErrorHandler(ctx, "Error: handleSetUpMonitorFlow"));
   });
 };
 

@@ -1,7 +1,9 @@
-import { Context } from "telegraf";
+import { Context, NarrowedContext } from "telegraf";
+import { Update } from "telegraf/types";
 
 import { MonitorInfo } from "~/types/monitor";
 import { FullUserInfo, UserInfo } from "~/types/user";
+import { logger } from "~/utils/logger";
 
 // TODO: think about "!"
 export const getUserId = (ctx: Context): string => String(ctx.chat!.id);
@@ -41,3 +43,12 @@ export const ColumnifyMap = {
     To: userInfo.to.name,
   }),
 };
+
+export const genericErrorHandler =
+  (ctx: Context<Update>, msg: string) => (error: any) => {
+    logger.error(error, msg);
+
+    return ctx
+      .reply("Some error occurred. Try again later")
+      .then(() => Promise.reject(error));
+  };

@@ -44,7 +44,7 @@ export class MonitorStateMachineConstruct extends Construct {
       this,
       "SpotMonitorTick",
       {
-        entry: path.join(__dirname, "spotMonitorTick.function.ts"),
+        entry: path.join(__dirname, "functions", "spotMonitorTick.function.ts"),
         environment: props.lambdaEnvs,
       }
     );
@@ -86,6 +86,7 @@ export class MonitorStateMachineConstruct extends Construct {
         {
           entry: path.join(
             __dirname,
+            "functions",
             "handleMonitorUnsubscription.function.ts"
           ),
           environment: props.lambdaEnvs,

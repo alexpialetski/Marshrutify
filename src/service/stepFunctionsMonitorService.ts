@@ -5,6 +5,7 @@ import {
   StartExecutionCommand,
   StopExecutionCommand,
   SendTaskSuccessCommand,
+  StopExecutionCommandInput,
 } from "@aws-sdk/client-sfn";
 
 import { MonitorData, MonitorEventData, MonitorInfo } from "~/types/monitor";
@@ -12,6 +13,7 @@ import { UserInfo } from "~/types/user";
 import { killIfNoEnvVariables } from "~/utils";
 
 import { MonitorService } from "./monitorService";
+import { logger } from "~/utils/logger";
 
 const { MONITOR_TABLE_NAME, AWS_REGION, MONITOR_TABLE_GSI_NAME } =
   killIfNoEnvVariables([
@@ -31,7 +33,7 @@ type DynamoMonitorInfo = MonitorInfo & {
 
 type DynamoMonitorInfoKey = keyof DynamoMonitorInfo;
 
-export class StepFunctionsMonitorService extends MonitorService {
+class StepFunctionsMonitorService extends MonitorService {
   tableName = MONITOR_TABLE_NAME;
 
   getRunningMonitorsByUserId = (
@@ -115,13 +117,32 @@ export class StepFunctionsMonitorService extends MonitorService {
   };
 
   stopMonitor(monitorInfo: MonitorInfo): Promise<void> {
-    return sfnClient
-      .send(
-        new StopExecutionCommand({
-          executionArn: monitorInfo.arn,
+    const executionInfo: StopExecutionCommandInput = {
+      executionArn: monitorInfo.arn,
+    };
+
+    return sfnClient.send(new StopExecutionCommand(executionInfo)).then(() => {
+      logger.info(executionInfo, "StepFunctionsMonitorService: Stoped monitor");
+
+      return ddbDocClient
+        .update({
+          TableName: this.tableName,
+          Key: { ["id" as keyof MonitorInfo]: monitorInfo.id },
+          ExpressionAttributeNames: {
+            "#status": "status" as DynamoMonitorInfoKey,
+          },
+          ExpressionAttributeValues: {
+            ":status": "STOPED" as MonitorInfo["status"],
+          },
+          UpdateExpression: "SET #status = :status",
         })
-      )
-      .then(() => {});
+        .then(() => {
+          logger.info(
+            executionInfo,
+            "StepFunctionsMonitorService: Updated DB with stoped monitor"
+          );
+        });
+    });
   }
 
   prolongMonitor({
@@ -140,3 +161,5 @@ export class StepFunctionsMonitorService extends MonitorService {
       .then(() => {});
   }
 }
+
+export const stepFunctionsMonitorService = new StepFunctionsMonitorService();

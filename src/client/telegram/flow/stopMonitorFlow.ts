@@ -4,7 +4,12 @@ import columnify from "columnify";
 import { MonitorInfo } from "~/types/monitor";
 import { ServiceMap } from "~/service/types";
 
-import { ActionQueryKey, ColumnifyMap, getUserId } from "../utils";
+import {
+  ActionQueryKey,
+  ColumnifyMap,
+  genericErrorHandler,
+  getUserId,
+} from "../utils";
 
 const stopMonitorActionQuery = ActionQueryKey<{
   id: MonitorInfo["id"];
@@ -21,7 +26,8 @@ export const handleStopMonitor = (
     return monitorService
       .getMonitorById(id)
       .then(monitorService.stopMonitor)
-      .then(() => ctx.reply(`Stopped poor slave with id: ${id}`))
+      .then(() => ctx.reply(`Monitor ${id} unsubscribed`))
+      .catch(genericErrorHandler(ctx, "Error: monitorService.stopMonitor"))
       .then(() => next());
   });
 };
@@ -29,29 +35,29 @@ export const handleStopMonitor = (
 export const stopMonitorFlow = async (
   ctx: Context,
   { getMonitorService }: ServiceMap
-) => {
-  const monitors = await getMonitorService().getRunningMonitorsByUserId(
-    getUserId(ctx)
-  );
+) =>
+  getMonitorService()
+    .getRunningMonitorsByUserId(getUserId(ctx))
+    .then((monitors) => {
+      if (!monitors.length) {
+        return ctx.reply("Bad news, buddy, you aint have no monitors");
+      }
 
-  if (!monitors.length) {
-    return ctx.reply("Bad news, buddy, you aint have no monitors");
-  }
-
-  return ctx.reply(
-    `<b>Running monitors</b><pre>${columnify(
-      monitors.map(ColumnifyMap.forMonitor)
-    ).toString()}</pre>`,
-    {
-      ...Markup.inlineKeyboard(
-        monitors.map((monitor) =>
-          Markup.button.callback(
-            monitor.id,
-            stopMonitorActionQuery.serialize({ id: monitor.id })
-          )
-        )
-      ),
-      parse_mode: "HTML",
-    }
-  );
-};
+      return ctx.reply(
+        `<b>Running monitors</b><pre>${columnify(
+          monitors.map(ColumnifyMap.forMonitor)
+        ).toString()}</pre>`,
+        {
+          ...Markup.inlineKeyboard(
+            monitors.map((monitor) =>
+              Markup.button.callback(
+                monitor.id,
+                stopMonitorActionQuery.serialize({ id: monitor.id })
+              )
+            )
+          ),
+          parse_mode: "HTML",
+        }
+      );
+    })
+    .catch(genericErrorHandler(ctx, "Error: stopMonitorFlow"));

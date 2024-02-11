@@ -7,7 +7,7 @@ import { UserInfo } from "~/types/user";
 import { DestinationInfo } from "~/types/path";
 import { ServiceMap } from "~/service/types";
 
-import { ActionQueryKey, getUserId } from "../utils";
+import { ActionQueryKey, genericErrorHandler, getUserId } from "../utils";
 
 type Initiator<T = unknown> = (
   ctx: Context,
@@ -101,6 +101,9 @@ export const handleSetUpUserInfo = (bot: Telegraf, serviceMap: ServiceMap) => {
 
       return getUserService(userId)
         .createUpdateUserInfo({ id: userId, busProvider: provider })
+        .catch(
+          genericErrorHandler(ctx, "Error: getUserService.createUpdateUserInfo")
+        )
         .then((userInfo) => setUpUserInfo(ctx, { userInfo, serviceMap }))
         .then(() => next());
     })
@@ -112,6 +115,7 @@ export const handleSetUpUserInfo = (bot: Telegraf, serviceMap: ServiceMap) => {
 
     bot.action(actionQuery.baseAsRegex, async (ctx, next) => {
       const userService = getUserService(getUserId(ctx));
+
       const userInfo = await userService.getInfo();
 
       if (!userInfo) {
@@ -122,11 +126,20 @@ export const handleSetUpUserInfo = (bot: Telegraf, serviceMap: ServiceMap) => {
 
       return getBusProviderService(userInfo.busProvider)
         .getDestinationInfoById(destId)
+        .catch(
+          genericErrorHandler(
+            ctx,
+            "Error: getBusProviderService.getDestinationInfoById"
+          )
+        )
         .then((destInfo) =>
           userService.createUpdateUserInfo({
             ...userInfo,
             [destinationDir]: destInfo,
           })
+        )
+        .catch(
+          genericErrorHandler(ctx, "Error: userService.createUpdateUserInfo")
         )
         .then((userInfo) => setUpUserInfo(ctx, { userInfo, serviceMap }))
         .then(() => next());

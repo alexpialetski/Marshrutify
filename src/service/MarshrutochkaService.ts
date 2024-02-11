@@ -82,3 +82,5 @@ export class MarshrutochkaService extends BusProviderService {
   convertDateToString = (date: Date): string =>
     date.toISOString().split("T")[0];
 }
+
+export const marshrutochkaService = new MarshrutochkaService();
