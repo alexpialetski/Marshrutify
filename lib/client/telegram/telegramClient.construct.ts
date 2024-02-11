@@ -4,6 +4,7 @@ import path = require("path");
 
 import { UserTableConstruct } from "../../constructs/userTable.construct";
 import { MonitorTableConstruct } from "../../constructs/monitorTable.construct";
+import { SpotMonitorConstruct } from "../../constructs/spotMonitor";
 import { LambdaEnvVariable } from "../../types";
 import { getTelegramBotTokenSecret } from "../../utils";
 
@@ -11,16 +12,25 @@ interface TelegramClientStackProps {
   readonly httpApi: cdk.aws_apigatewayv2.HttpApi;
   readonly userTable: UserTableConstruct;
   readonly monitorTable: MonitorTableConstruct;
+  readonly spotMonitor: SpotMonitorConstruct;
   readonly lambdaEnvs: Record<LambdaEnvVariable, any>;
 }
 
 export class TelegramClientConstruct extends Construct {
   public readonly urlOutput: cdk.CfnOutput;
 
-  constructor(scope: Construct, id: string, props: TelegramClientStackProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    {
+      userTable,
+      monitorTable,
+      httpApi,
+      spotMonitor,
+      lambdaEnvs,
+    }: TelegramClientStackProps
+  ) {
     super(scope, id);
-
-    const { userTable, monitorTable, httpApi } = props;
 
     const telegramBotHandler = new cdk.aws_lambda_nodejs.NodejsFunction(
       this,
@@ -28,12 +38,12 @@ export class TelegramClientConstruct extends Construct {
       {
         entry: path.join(__dirname, "botHandler.function.ts"),
         handler: "handler",
-        environment: props.lambdaEnvs,
+        environment: lambdaEnvs,
       }
     );
 
     const telegramBotAddRoute: cdk.aws_apigatewayv2.AddRoutesOptions = {
-      path: props.lambdaEnvs.TELEGRAM_BOT_PATH,
+      path: lambdaEnvs.TELEGRAM_BOT_PATH,
       methods: [cdk.aws_apigatewayv2.HttpMethod.POST],
       integration: new cdk.aws_apigatewayv2_integrations.HttpLambdaIntegration(
         "TelegramBotApiRoute",
@@ -55,6 +65,15 @@ export class TelegramClientConstruct extends Construct {
 
     userTable.table.grantReadWriteData(telegramBotHandler);
     monitorTable.table.grantReadWriteData(telegramBotHandler);
+    spotMonitor.stateMachine.grantExecution(
+      telegramBotHandler,
+      "states:StopExecution"
+    );
+    spotMonitor.stateMachine.grant(
+      telegramBotHandler,
+      "states:SendTaskSuccess",
+      "states:StartExecution"
+    );
 
     const telegramBotToken = getTelegramBotTokenSecret(this);
     telegramBotToken.grantRead(telegramBotHandler);

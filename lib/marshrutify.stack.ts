@@ -36,22 +36,24 @@ export class MarshrutifyStack extends cdk.Stack {
       STATE_MACHINE_ARN: "", // calculated later
     };
 
-    const spotMonitorConstruct = new SpotMonitorConstruct(this, "SpotMonitor", {
+    const spotMonitor = new SpotMonitorConstruct(this, "SpotMonitor", {
       eventBus: events.EventBus.fromEventBusName(
         this,
         "AWSDefaultEventBus",
         "default"
       ),
       lambdaEnvs: lambdaEnvVariables,
+      monitorTable,
     });
 
     new TelegramClientConstruct(this, "TelegramClientStack", {
       httpApi,
       userTable,
       monitorTable,
+      spotMonitor,
       lambdaEnvs: {
         ...lambdaEnvVariables,
-        STATE_MACHINE_ARN: spotMonitorConstruct.stateMachineArn.value,
+        STATE_MACHINE_ARN: spotMonitor.stateMachineArn.value,
       },
     });
   }

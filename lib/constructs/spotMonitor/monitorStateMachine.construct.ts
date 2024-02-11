@@ -13,11 +13,7 @@ import { getTelegramBotTokenSecret } from "../../utils";
 export class MonitorStateMachineConstruct extends Construct {
   public readonly stateMachine: sfn.StateMachine;
 
-  constructor(
-    scope: Construct,
-    id = "StepFunction",
-    props: MonitorConstructProps
-  ) {
+  constructor(scope: Construct, id: string, props: MonitorConstructProps) {
     super(scope, id);
 
     const monitorStartedPutEventState = new sfnTasks.EventBridgePutEvents(
@@ -121,6 +117,10 @@ export class MonitorStateMachineConstruct extends Construct {
             })
             .next(isTimedOutChoice)
         )
+    );
+
+    props.monitorTable.table.grantReadWriteData(
+      handleMonitorUnsubscriptionFunction
     );
 
     const telegramBotToken = getTelegramBotTokenSecret(this);

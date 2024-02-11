@@ -122,33 +122,37 @@ class StepFunctionsMonitorService extends MonitorService {
     });
   };
 
-  stopMonitor(monitorInfo: MonitorInfo): Promise<void> {
+  async stopMonitor(monitorInfo: MonitorInfo): Promise<void> {
     const executionInfo: StopExecutionCommandInput = {
       executionArn: monitorInfo.arn,
     };
 
-    return sfnClient.send(new StopExecutionCommand(executionInfo)).then(() => {
-      logger.info(executionInfo, "StepFunctionsMonitorService: Stoped monitor");
+    await sfnClient.send(new StopExecutionCommand(executionInfo));
 
-      return ddbDocClient
-        .update({
-          TableName: this.tableName,
-          Key: { ["id" as keyof MonitorInfo]: monitorInfo.id },
-          ExpressionAttributeNames: {
-            "#status": "status" as DynamoMonitorInfoKey,
-          },
-          ExpressionAttributeValues: {
-            ":status": "STOPED" as MonitorInfo["status"],
-          },
-          UpdateExpression: "SET #status = :status",
-        })
-        .then(() => {
-          logger.info(
-            executionInfo,
-            "StepFunctionsMonitorService: Updated DB with stoped monitor"
-          );
-        });
-    });
+    logger.info(executionInfo, "StepFunctionsMonitorService: Stoped monitor");
+
+    return this.onMonitorStopped(monitorInfo);
+  }
+
+  onMonitorStopped(monitorInfo: MonitorInfo): Promise<void> {
+    return ddbDocClient
+      .update({
+        TableName: this.tableName,
+        Key: { ["id" as keyof MonitorInfo]: monitorInfo.id },
+        ExpressionAttributeNames: {
+          "#status": "status" as DynamoMonitorInfoKey,
+        },
+        ExpressionAttributeValues: {
+          ":status": "STOPED" as MonitorInfo["status"],
+        },
+        UpdateExpression: "SET #status = :status",
+      })
+      .then(() => {
+        logger.info(
+          { id: monitorInfo.id },
+          "StepFunctionsMonitorService: Updated DB with stoped monitor"
+        );
+      });
   }
 
   prolongMonitor({

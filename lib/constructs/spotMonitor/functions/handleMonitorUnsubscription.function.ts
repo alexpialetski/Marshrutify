@@ -22,19 +22,9 @@ export const handler: EventBridgeHandler<
   const client = getClientService(monitorEventData.monitorInfo.client);
   const monitorService = getMonitorService();
 
-  logger.info(monitorEventData.monitorInfo, "monitorService.stopMonitor");
+  logger.info(monitorEventData.monitorInfo, "monitorService.onMonitorStopped");
 
-  try {
-    await monitorService.stopMonitor(monitorEventData.monitorInfo);
-  } catch (error) {
-    logger.error(error, "Error: monitorService.stopMonitor");
-    // throw error; // do not fail, state machine will timeout (TODO: better handling)
-
-    return client.notifyUser(
-      monitorEventData.monitorInfo.userId,
-      `Could not stop poor guy ${monitorEventData.monitorInfo.id}... It is his whole life`
-    );
-  }
+  await monitorService.onMonitorStopped(monitorEventData.monitorInfo);
 
   return client.notifyUser(
     monitorEventData.monitorInfo.userId,

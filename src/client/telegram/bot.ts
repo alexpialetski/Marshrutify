@@ -12,8 +12,6 @@ import { handleInfoCommand } from "./flow/handleInfoCommand";
 import { handleStartCommand } from "./flow/handleStartCommand";
 
 export const setUpBot = (bot: Telegraf, serviceMap: ServiceMap): Telegraf => {
-  const { getUserService, getMonitorService } = serviceMap;
-
   // FLOW
   handleSetUpUserInfo(bot, serviceMap);
   handleSetUpMonitorFlow(bot, serviceMap);

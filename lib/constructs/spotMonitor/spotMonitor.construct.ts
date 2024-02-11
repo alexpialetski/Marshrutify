@@ -12,7 +12,8 @@ import { MonitorStateMachineConstruct } from "./monitorStateMachine.construct";
 import { getTelegramBotTokenSecret } from "../../utils";
 
 export class SpotMonitorConstruct extends Construct {
-  stateMachineArn: cdk.CfnOutput;
+  public readonly stateMachineArn: cdk.CfnOutput;
+  public readonly stateMachine: cdk.aws_stepfunctions.StateMachine;
 
   constructor(scope: Construct, id: string, props: MonitorConstructProps) {
     super(scope, id);
@@ -74,6 +75,7 @@ export class SpotMonitorConstruct extends Construct {
     telegramBotToken.grantRead(handleMonitorStartedFunction);
     telegramBotToken.grantRead(handleMonitorUnsubscriptionNotificationFunction);
 
+    this.stateMachine = monitorStateMachine.stateMachine;
     this.stateMachineArn = new cdk.CfnOutput(this, "StateMachineArnOutput", {
       value: monitorStateMachine.stateMachine.stateMachineArn,
     });

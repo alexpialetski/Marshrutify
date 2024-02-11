@@ -18,6 +18,8 @@ export abstract class MonitorService {
 
   abstract stopMonitor(monitorInfo: MonitorInfo): Promise<void>;
 
+  abstract onMonitorStopped(monitorInfo: MonitorInfo): Promise<void>;
+
   abstract saveMonitor(monitor: MonitorData): Promise<MonitorInfo>;
 
   abstract prolongMonitor(params: {

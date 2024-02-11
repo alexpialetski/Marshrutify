@@ -113,6 +113,10 @@ export class EventEmitterMonitorService extends MonitorService {
   }
 
   stopMonitor(monitorInfo: MonitorInfo): Promise<void> {
+    return this.onMonitorStopped(monitorInfo);
+  }
+
+  onMonitorStopped(monitorInfo: MonitorInfo): Promise<void> {
     return Promise.resolve().then(() =>
       this.monitors.stopMonitor(monitorInfo.id)
     );
