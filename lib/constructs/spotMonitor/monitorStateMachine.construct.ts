@@ -69,7 +69,7 @@ export class MonitorStateMachineConstruct extends Construct {
           entries: [
             {
               detail: sfn.TaskInput.fromObject({
-                monitorEventData: sfn.TaskInput.fromJsonPathAt("$"),
+                monitorEventData: sfn.TaskInput.fromJsonPathAt("$").value,
                 taskToken: sfn.JsonPath.taskToken,
               }),
               eventBus: props.eventBus,
@@ -118,6 +118,7 @@ export class MonitorStateMachineConstruct extends Construct {
           monitorUnsubscriptionNotificationState
             .addCatch(handleMonitorUnsubscriptionState, {
               errors: [sfn.Errors.TIMEOUT],
+              resultPath: sfn.JsonPath.DISCARD, // use input instead
             })
             .next(isTimedOutChoice)
         )
