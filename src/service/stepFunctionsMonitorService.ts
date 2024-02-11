@@ -6,6 +6,7 @@ import {
   StopExecutionCommand,
   SendTaskSuccessCommand,
   StopExecutionCommandInput,
+  StartExecutionCommandInput,
 } from "@aws-sdk/client-sfn";
 
 import { MonitorData, MonitorEventData, MonitorInfo } from "~/types/monitor";
@@ -102,14 +103,15 @@ class StepFunctionsMonitorService extends MonitorService {
       prevSlots: [],
       timeOutTime: this.getTimeout(),
     };
+    const startCommandInput: StartExecutionCommandInput = {
+      stateMachineArn: STATE_MACHINE_ARN,
+      input: JSON.stringify(input),
+    };
 
-    logger.info(input, "StepFunctionsMonitorService.startMonitor");
+    logger.info(startCommandInput, "StepFunctionsMonitorService.startMonitor");
 
     const executionInfo = await sfnClient.send(
-      new StartExecutionCommand({
-        stateMachineArn: STATE_MACHINE_ARN,
-        input: JSON.stringify(input),
-      })
+      new StartExecutionCommand(startCommandInput)
     );
 
     logger.info(executionInfo, "StepFunctionsMonitorService.saveMonitor");

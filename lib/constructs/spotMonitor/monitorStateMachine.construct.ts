@@ -106,7 +106,7 @@ export class MonitorStateMachineConstruct extends Construct {
         .when(
           sfn.Condition.timestampLessThanEqualsJsonPath(
             "$$.State.EnteredTime",
-            "$.timeoutTime"
+            "$.timeOutTime"
           ),
           spotMonitorTickState.next(waitX).next(isTimedOutChoice)
         )
