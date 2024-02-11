@@ -24,7 +24,7 @@ export class PipelineStack extends cdk.Stack {
           "main",
           {
             authentication: cdk.SecretValue.secretsManager(
-              "marshrutify-github-token"
+              "marshrutify-project-github-token"
             ),
           }
         ),

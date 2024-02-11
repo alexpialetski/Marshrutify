@@ -15,7 +15,7 @@ cdk bootstrap
 
 declare -A SECRETS
 SECRETS=(
-    ["marshrutify-github-token"]="$GITHUB_TOKEN"
+    ["marshrutify-project-github-token"]="$GITHUB_TOKEN"
     ["marshrutify-telegram-bot-token"]="$TELEGRAM_BOT_TOKEN"
 )
 
