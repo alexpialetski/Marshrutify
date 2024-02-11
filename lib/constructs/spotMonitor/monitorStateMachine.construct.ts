@@ -50,6 +50,9 @@ export class MonitorStateMachineConstruct extends Construct {
       "SpotMonitorTick state",
       {
         lambdaFunction: spotMonitorTickFunction,
+        inputPath: sfn.TaskInput.fromJsonPathAt("$").value,
+        resultPath: sfn.TaskInput.fromJsonPathAt("$").value,
+        outputPath: "$.Payload",
       }
     );
 

@@ -138,7 +138,10 @@ class StepFunctionsMonitorService extends MonitorService {
     return ddbDocClient
       .update({
         TableName: this.tableName,
-        Key: { ["id" as keyof MonitorInfo]: monitorInfo.id },
+        Key: {
+          ["id" as DynamoMonitorInfoKey]: monitorInfo.id,
+          ["userId" as DynamoMonitorInfoKey]: monitorInfo.userId,
+        },
         ExpressionAttributeNames: {
           "#status": "status" as DynamoMonitorInfoKey,
         },
