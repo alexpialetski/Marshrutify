@@ -11,7 +11,10 @@ export const handleSetUpMonitorFlow = (
   bot: Telegraf,
   serviceMap: ServiceMap
 ) => {
-  new Calendar(bot).setDateListener(async (ctx, date) => {
+  // copied from "telegraf-calendar-telegram"
+  bot.action(/calendar-telegram-date-[\d-]+/g, async (ctx) => {
+    let date = ctx.match[0].replace("calendar-telegram-date-", "");
+
     const { getUserService, getMonitorService } = serviceMap;
     const userInfo = await getUserService(getUserId(ctx)).getInfo();
 

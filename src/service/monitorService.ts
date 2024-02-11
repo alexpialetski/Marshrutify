@@ -27,7 +27,7 @@ export abstract class MonitorService {
     taskToken: string;
   }): Promise<void>;
 
-  getTimeout = (): string => addMinutes(new Date(), 20).toISOString();
+  getTimeout = (): string => addMinutes(new Date(), 2).toISOString(); // TODO: change to 20 minutes
 
   // for yyyy-mm-dd format
   convertToDate = (date: string): Date => new Date(date);
