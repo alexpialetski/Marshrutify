@@ -71,6 +71,10 @@ export class SpotMonitorConstruct extends Construct {
       props
     );
 
+    props.monitorTable.table.grantReadWriteData(
+      handleMonitorUnsubscriptionNotificationFunction
+    );
+
     const telegramBotToken = getTelegramBotTokenSecret(this);
     telegramBotToken.grantRead(handleMonitorStartedFunction);
     telegramBotToken.grantRead(handleMonitorUnsubscriptionNotificationFunction);
