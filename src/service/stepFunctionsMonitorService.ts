@@ -10,11 +10,11 @@ import {
 } from "@aws-sdk/client-sfn";
 
 import { MonitorData, MonitorEventData, MonitorInfo } from "~/types/monitor";
-import { UserInfo } from "~/types/user";
 import { killIfNoEnvVariables } from "~/utils";
 
 import { MonitorService } from "./monitorService";
 import { logger } from "~/utils/logger";
+import { DynamoDBMonitorService } from "./monitorStorage/dynamoDBMonitorService";
 
 const { MONITOR_TABLE_NAME, AWS_REGION, MONITOR_TABLE_GSI_NAME } =
   killIfNoEnvVariables([
@@ -34,67 +34,15 @@ type DynamoMonitorInfo = MonitorInfo & {
 
 type DynamoMonitorInfoKey = keyof DynamoMonitorInfo;
 
+const dynamoDBMonitorService = new DynamoDBMonitorService();
+
 class StepFunctionsMonitorService extends MonitorService {
+  monitorStorage: DynamoDBMonitorService;
   tableName = MONITOR_TABLE_NAME;
 
-  getRunningMonitorsByUserId = (
-    userId: UserInfo["id"]
-  ): Promise<MonitorInfo[]> => {
-    return ddbDocClient
-      .query({
-        TableName: this.tableName,
-        IndexName: MONITOR_TABLE_GSI_NAME,
-        KeyConditionExpression:
-          "#status = :statusVal and begins_with(#userIdKey, :userId)",
-        ExpressionAttributeValues: {
-          ":statusVal": "IN_PROGRESS" as MonitorInfo["status"],
-          ":userId": userId,
-        },
-        ExpressionAttributeNames: {
-          "#status": "status" as DynamoMonitorInfoKey,
-          "#userIdKey": "userId_date" as DynamoMonitorInfoKey,
-        },
-      })
-      .then(({ Items }) => Items as DynamoMonitorInfo[]);
-  };
-
-  getMonitorById = (
-    id: MonitorInfo["id"],
-    userId: string
-  ): Promise<MonitorInfo> => {
-    return ddbDocClient
-      .get({
-        TableName: this.tableName,
-        Key: {
-          ["id" as DynamoMonitorInfoKey]: id,
-          ["userId" as DynamoMonitorInfoKey]: userId,
-        },
-      })
-      .then(({ Item }) => {
-        if (!Item) {
-          return Promise.reject("404: Invalid monitor id");
-        }
-
-        return Item as DynamoMonitorInfo;
-      });
-  };
-
-  saveMonitor = (monitor: MonitorData): Promise<MonitorInfo> => {
-    const id = this.generateMonitorId();
-    const data: DynamoMonitorInfo = {
-      ...monitor,
-      id,
-      status: "IN_PROGRESS",
-      userId_date: `${monitor.userId}_${monitor.date}`,
-    };
-
-    return ddbDocClient
-      .put({
-        TableName: this.tableName,
-        Item: data,
-      })
-      .then(() => data);
-  };
+  constructor() {
+    super(dynamoDBMonitorService);
+  }
 
   startMonitor = async (monitor: MonitorData): Promise<MonitorInfo> => {
     const { STATE_MACHINE_ARN } = killIfNoEnvVariables(["STATE_MACHINE_ARN"]);
@@ -102,9 +50,11 @@ class StepFunctionsMonitorService extends MonitorService {
     const input: MonitorEventData = {
       monitorInfo: {
         ...monitor,
-        id: this.generateMonitorId(),
+        id: this.monitorStorage.generateMonitorId(),
         status: "IN_PROGRESS",
-        arn: "", // will be set by SM
+        execution: {
+          arn: "", // not known right now
+        },
       },
       prevSlots: [],
       timeOutTime: this.getTimeout(),
@@ -122,15 +72,17 @@ class StepFunctionsMonitorService extends MonitorService {
 
     logger.info(executionInfo, "StepFunctionsMonitorService.saveMonitor");
 
-    return this.saveMonitor({
+    return this.monitorStorage.saveMonitor({
       ...input.monitorInfo,
-      arn: executionInfo.executionArn,
+      execution: {
+        arn: executionInfo.executionArn,
+      },
     });
   };
 
   async stopMonitor(monitorInfo: MonitorInfo): Promise<void> {
     const executionInfo: StopExecutionCommandInput = {
-      executionArn: monitorInfo.arn,
+      executionArn: monitorInfo.execution.arn,
     };
 
     await sfnClient.send(new StopExecutionCommand(executionInfo));
@@ -141,40 +93,22 @@ class StepFunctionsMonitorService extends MonitorService {
   }
 
   onMonitorStopped(monitorInfo: MonitorInfo): Promise<void> {
-    return ddbDocClient
-      .update({
-        TableName: this.tableName,
-        Key: {
-          ["id" as DynamoMonitorInfoKey]: monitorInfo.id,
-          ["userId" as DynamoMonitorInfoKey]: monitorInfo.userId,
-        },
-        ExpressionAttributeNames: {
-          "#status": "status" as DynamoMonitorInfoKey,
-        },
-        ExpressionAttributeValues: {
-          ":status": "STOPED" as MonitorInfo["status"],
-        },
-        UpdateExpression: "SET #status = :status",
-      })
-      .then(() => {
-        logger.info(
-          { id: monitorInfo.id },
-          "StepFunctionsMonitorService: Updated DB with stoped monitor"
-        );
-      });
+    const stoppedInfo: MonitorInfo = { ...monitorInfo, status: "STOPED" };
+
+    return this.monitorStorage.updateMonitorStatusById(stoppedInfo).then(() => {
+      logger.info(
+        stoppedInfo,
+        "StepFunctionsMonitorService: Updated DB with stoped monitor"
+      );
+    });
   }
 
-  prolongMonitor({
-    taskToken,
-  }: {
-    monitorInfo: MonitorInfo;
-    taskToken: string;
-  }): Promise<void> {
+  prolongMonitor(monitorInfo: MonitorInfo): Promise<void> {
     return sfnClient
       .send(
         new SendTaskSuccessCommand({
           output: this.getTimeout(),
-          taskToken,
+          taskToken: monitorInfo.execution.taskToken,
         })
       )
       .then(() => {});

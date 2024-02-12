@@ -24,9 +24,10 @@ export const handleInfoCommand = (bot: Telegraf, serviceMap: ServiceMap) => {
       }
     ).toString()}</pre>`;
 
-    const monitors = await getMonitorService().getRunningMonitorsByUserId(
-      userInfo.id
-    );
+    const monitors =
+      await getMonitorService().monitorStorage.getRunningMonitorsByUserId(
+        userInfo.id
+      );
 
     if (monitors.length) {
       result += `<b>Monitor info</b><pre>${columnify(

@@ -1,4 +1,4 @@
-import { EventBridgeEvent, Handler, EventBridgeHandler } from "aws-lambda";
+import { EventBridgeHandler } from "aws-lambda";
 import { lambdaRequestTracker } from "pino-lambda";
 
 import {
@@ -6,7 +6,7 @@ import {
   monitorUnsubscriptionNotificationEvent,
 } from "~/events/monitorUnsubscriptionNotificationEvent";
 import { EventFacadeType } from "~/events/types";
-import { getClientService } from "~/serviceMap";
+import { getClientService, getMonitorService } from "~/serviceMap";
 import { logger } from "~/utils/logger";
 
 const withRequest = lambdaRequestTracker();
@@ -20,14 +20,29 @@ export const handler: EventBridgeHandler<
 
   logger.info(event, "Event");
 
-  const { monitorEventData, taskToken } = event.detail;
-  const client = getClientService(monitorEventData.monitorInfo.client);
+  const {
+    monitorEventData: { monitorInfo },
+    taskToken,
+  } = event.detail;
+  const client = getClientService(monitorInfo.client);
+  const monitorService = getMonitorService();
 
   try {
-    await client.notifyAboutUnsubscription({
-      monitorInfo: monitorEventData.monitorInfo,
-      taskToken,
+    await monitorService.monitorStorage.updateMonitorExecutionById({
+      id: monitorInfo.id,
+      userId: monitorInfo.userId,
+      execution: { ...monitorInfo.execution, taskToken: taskToken },
     });
+  } catch (error) {
+    logger.error(
+      error,
+      "monitorService.monitorStorage.updateMonitorExecutionById"
+    );
+    throw error;
+  }
+
+  try {
+    await client.notifyAboutUnsubscription(monitorInfo);
   } catch (error) {
     logger.error(error, "client.notifyAboutUnsubscription");
     // throw error; // do not fail. flow will stop state machine after some time

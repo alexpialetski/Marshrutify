@@ -1,21 +1,17 @@
-import { v4 as uuidv4 } from "uuid";
-
 import { MonitorData, MonitorEventData, MonitorInfo } from "../types/monitor";
 import { UserInfo } from "../types/user";
 import { AvailableTimeSlot } from "./busProviderService";
 import { DiffData, diff } from "fast-array-diff";
 import { ServiceMap } from "./types";
 import { addMinutes } from "~/utils";
+import { MonitorStorageService } from "./monitorStorage/monitorStorageService";
 
 export abstract class MonitorService {
-  abstract getRunningMonitorsByUserId(
-    userId: UserInfo["id"]
-  ): Promise<MonitorInfo[]>;
+  monitorStorage: MonitorStorageService;
 
-  abstract getMonitorById(
-    id: MonitorInfo["id"],
-    userId: string
-  ): Promise<MonitorInfo>;
+  constructor(monitorStorage: MonitorStorageService) {
+    this.monitorStorage = monitorStorage;
+  }
 
   abstract startMonitor(monitor: MonitorData): Promise<MonitorInfo>;
 
@@ -23,19 +19,12 @@ export abstract class MonitorService {
 
   abstract onMonitorStopped(monitorInfo: MonitorInfo): Promise<void>;
 
-  abstract saveMonitor(monitor: MonitorData): Promise<MonitorInfo>;
-
-  abstract prolongMonitor(params: {
-    monitorInfo: MonitorInfo;
-    taskToken: string;
-  }): Promise<void>;
+  abstract prolongMonitor(monitorInfo: MonitorInfo): Promise<void>;
 
   getTimeout = (): string => addMinutes(new Date(), 2).toISOString(); // TODO: change to 20 minutes
 
   // for yyyy-mm-dd format
   convertToDate = (date: string): Date => new Date(date);
-
-  generateMonitorId = (): MonitorInfo["id"] => uuidv4().slice(0, 6);
 
   getDiffOfSlots = (
     prevSlots: AvailableTimeSlot[],

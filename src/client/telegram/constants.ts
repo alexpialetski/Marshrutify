@@ -3,5 +3,4 @@ import { ActionQueryKey } from "./utils";
 
 export const prolongMonitorQuery = ActionQueryKey<{
   id: MonitorInfo["id"];
-  t: string;
 }>("ProlongMonitor");

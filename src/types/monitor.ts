@@ -10,12 +10,15 @@ export type MonitorData = {
   to: DestinationInfo;
   client: Client;
   date: string; // yyyy-mm-dd
-  arn?: string;
 };
 
 export type MonitorInfo = MonitorData & {
   id: string;
   status: "IN_PROGRESS" | "STOPED";
+  execution: {
+    arn?: string;
+    taskToken?: string;
+  };
 };
 
 export type MonitorEventData = {

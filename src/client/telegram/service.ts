@@ -83,13 +83,7 @@ export class TelegramClientService extends ClientService {
     );
   };
 
-  notifyAboutUnsubscription = ({
-    monitorInfo,
-    taskToken,
-  }: {
-    monitorInfo: MonitorInfo;
-    taskToken: string;
-  }): Promise<unknown> => {
+  notifyAboutUnsubscription = (monitorInfo: MonitorInfo): Promise<unknown> => {
     return this.initializeTelegraf().then((telegraf) =>
       telegraf.telegram.sendMessage(
         monitorInfo.userId,
@@ -97,7 +91,7 @@ export class TelegramClientService extends ClientService {
         Markup.inlineKeyboard([
           Markup.button.callback(
             "Prolong",
-            prolongMonitorQuery.serialize({ id: monitorInfo.id, t: taskToken })
+            prolongMonitorQuery.serialize({ id: monitorInfo.id })
           ),
         ])
       )

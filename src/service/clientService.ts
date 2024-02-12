@@ -22,8 +22,7 @@ export abstract class ClientService {
     text: string
   ) => Promise<unknown>;
 
-  abstract notifyAboutUnsubscription: (params: {
-    monitorInfo: MonitorInfo;
-    taskToken: string;
-  }) => Promise<unknown>;
+  abstract notifyAboutUnsubscription: (
+    monitorInfo: MonitorInfo
+  ) => Promise<unknown>;
 }

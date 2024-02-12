@@ -16,6 +16,14 @@ export class MonitorStateMachineConstruct extends Construct {
   constructor(scope: Construct, id: string, props: MonitorConstructProps) {
     super(scope, id);
 
+    const mixinExecutionArn = new sfn.Pass(this, "Mixin execution", {
+      parameters: {
+        arn: sfn.TaskInput.fromJsonPathAt("$$.Execution.Id").value,
+      },
+      inputPath: sfn.TaskInput.fromJsonPathAt("$").value,
+      resultPath: sfn.TaskInput.fromJsonPathAt("$.monitorInfo.execution").value,
+    });
+
     const monitorStartedPutEventState = new sfnTasks.EventBridgePutEvents(
       this,
       `${monitorStartedEvent.getEventDetailType()} state`,
@@ -102,7 +110,7 @@ export class MonitorStateMachineConstruct extends Construct {
       }
     );
 
-    const definition = monitorStartedPutEventState.next(
+    const definition = mixinExecutionArn.next(monitorStartedPutEventState).next(
       isTimedOutChoice
         .when(
           // sfn.Condition.timestampLessThanEqualsJsonPath( TODO

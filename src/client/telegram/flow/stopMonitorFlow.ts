@@ -23,7 +23,7 @@ export const handleStopMonitor = (
     const { id } = stopMonitorActionQuery.deserialize(ctx.match.input);
     const monitorService = getMonitorService();
 
-    return monitorService
+    return monitorService.monitorStorage
       .getMonitorById(id, getUserId(ctx))
       .then(monitorService.stopMonitor)
       .then(() => ctx.reply(`Monitor ${id} unsubscribed`))
@@ -37,7 +37,7 @@ export const stopMonitorFlow = async (
   { getMonitorService }: ServiceMap
 ) =>
   getMonitorService()
-    .getRunningMonitorsByUserId(getUserId(ctx))
+    .monitorStorage.getRunningMonitorsByUserId(getUserId(ctx))
     .then((monitors) => {
       if (!monitors.length) {
         return ctx.reply("Bad news, buddy, you aint have no monitors");

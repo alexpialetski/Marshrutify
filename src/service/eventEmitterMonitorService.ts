@@ -2,6 +2,8 @@ import { MonitorData, MonitorEventData, MonitorInfo } from "~/types/monitor";
 import { TypedEventEmitter, addMinutes } from "~/utils";
 
 import { MonitorService } from "./monitorService";
+import { TimerMonitorStorageService } from "./monitorStorage/timerMonitorStorageService";
+import { MonitorStorageService } from "./monitorStorage/monitorStorageService";
 
 type Monitor = {
   monitorInfo: MonitorInfo;
@@ -53,55 +55,21 @@ type EventMap = {
   seatNotifier: MonitorEventData;
 };
 
+const timerMonitorStorageService = new TimerMonitorStorageService();
+
 export class EventEmitterMonitorService extends MonitorService {
   eventEmiter = new TypedEventEmitter<EventMap>();
-  monitors = new MonitorsArray();
   notifierInterval: number;
+  monitorStorage: TimerMonitorStorageService;
 
   constructor(params: { notifierInterval?: number } = {}) {
-    super();
+    super(timerMonitorStorageService);
 
     this.notifierInterval = params.notifierInterval || 5 * 1000;
   }
 
-  getMonitorById(id: string): Promise<MonitorInfo> {
-    const monitorData = this.monitors
-      .getArray()
-      .find((monitor) => monitor.monitorInfo.id === id);
-
-    return monitorData
-      ? Promise.resolve(monitorData.monitorInfo)
-      : Promise.reject("404: Invalid monitor id");
-  }
-
-  getRunningMonitorsByUserId(userId: string): Promise<MonitorInfo[]> {
-    return Promise.resolve(
-      this.monitors
-        .getArray()
-        .filter(
-          (monitor) =>
-            monitor.monitorInfo.userId === userId &&
-            monitor.monitorInfo.status === "IN_PROGRESS"
-        )
-        .map((data) => data.monitorInfo)
-    );
-  }
-
-  saveMonitor(monitorData: MonitorData): Promise<MonitorInfo> {
-    const monitorInfo: MonitorInfo = {
-      ...monitorData,
-      id: this.generateMonitorId(),
-      status: "IN_PROGRESS",
-      arn: "",
-    };
-
-    this.monitors.addMonitor(monitorInfo);
-
-    return Promise.resolve(monitorInfo);
-  }
-
   startMonitor(monitorData: MonitorData): Promise<MonitorInfo> {
-    return this.saveMonitor(monitorData).then((monitorInfo) => {
+    return this.monitorStorage.saveMonitor(monitorData).then((monitorInfo) => {
       this.eventEmiter.emit("seatNotifier", {
         monitorInfo,
         prevSlots: [],
@@ -117,19 +85,17 @@ export class EventEmitterMonitorService extends MonitorService {
   }
 
   onMonitorStopped(monitorInfo: MonitorInfo): Promise<void> {
-    return Promise.resolve().then(() =>
-      this.monitors.stopMonitor(monitorInfo.id)
-    );
+    return this.monitorStorage.updateMonitorStatusById({
+      ...monitorInfo,
+      status: "STOPED",
+    });
   }
 
-  prolongMonitor(_: {
-    monitorInfo: MonitorInfo;
-    taskToken: string;
-  }): Promise<void> {
+  prolongMonitor(_: MonitorInfo): Promise<void> {
     return Promise.reject("Not implemented.");
   }
 
-  cleanUp = () => this.monitors.stopAllMonitors();
+  cleanUp = () => this.monitorStorage.monitors.stopAllMonitors();
 
   subscribe = (
     func: (payload: EventMap["seatNotifier"]) => Promise<MonitorEventData>
@@ -141,10 +107,13 @@ export class EventEmitterMonitorService extends MonitorService {
           this.notifierInterval
         );
 
-        this.monitors.updateMonitor(payload.monitorInfo.id, (monitor) => ({
-          ...monitor,
-          timerId: newTimerId,
-        }));
+        this.monitorStorage.monitors.updateMonitor(
+          payload.monitorInfo.id,
+          (monitor) => ({
+            ...monitor,
+            timerId: newTimerId,
+          })
+        );
       })
     );
   };
