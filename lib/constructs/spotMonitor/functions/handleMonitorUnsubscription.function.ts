@@ -1,26 +1,21 @@
-import { EventBridgeHandler } from "aws-lambda";
+import { Handler } from "aws-lambda";
 import { lambdaRequestTracker } from "pino-lambda";
 
-import {
-  monitorUnsubscriptionEvent,
-  MonitorUnsubscriptionPayload,
-} from "~/events/monitorUnsubscriptionEvent";
-import { EventFacadeType } from "~/events/types";
 import { getClientService, getMonitorService } from "~/serviceMap";
+import { MonitorEventData } from "~/types/monitor";
 import { logger } from "~/utils/logger";
 
 const withRequest = lambdaRequestTracker();
 
-export const handler: EventBridgeHandler<
-  EventFacadeType<typeof monitorUnsubscriptionEvent>,
-  MonitorUnsubscriptionPayload,
-  unknown
-> = async (event, context) => {
+export const handler: Handler<MonitorEventData, void> = async (
+  event,
+  context
+) => {
   withRequest(event, context);
 
-  logger.info(event.detail, "Event.detail");
+  logger.info(event, "Event");
 
-  const monitorEventData = event.detail;
+  const monitorEventData = event;
   const client = getClientService(monitorEventData.monitorInfo.client);
   const monitorService = getMonitorService();
 
@@ -28,8 +23,10 @@ export const handler: EventBridgeHandler<
 
   await monitorService.onMonitorStopped(monitorEventData.monitorInfo);
 
-  return client.notifyUser(
+  await client.notifyUser(
     monitorEventData.monitorInfo.userId,
     `Monitor ${monitorEventData.monitorInfo.id} unsubscribed`
   );
+
+  return;
 };

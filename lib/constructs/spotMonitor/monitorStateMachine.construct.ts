@@ -73,8 +73,9 @@ export class MonitorStateMachineConstruct extends Construct {
                 taskToken: sfn.JsonPath.taskToken,
               }),
               eventBus: props.eventBus,
-              detailType: monitorStartedEvent.getEventDetailType(),
-              source: monitorStartedEvent.getEventSource(),
+              detailType:
+                monitorUnsubscriptionNotificationEvent.getEventDetailType(),
+              source: monitorUnsubscriptionNotificationEvent.getEventSource(),
             },
           ],
           resultPath: sfn.JsonPath.DISCARD, // use input instead
