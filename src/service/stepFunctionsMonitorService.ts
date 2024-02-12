@@ -1,5 +1,3 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 import {
   SFNClient,
   StartExecutionCommand,
@@ -16,29 +14,14 @@ import { MonitorService } from "./monitorService";
 import { logger } from "~/utils/logger";
 import { DynamoDBMonitorService } from "./monitorStorage/dynamoDBMonitorService";
 
-const { MONITOR_TABLE_NAME, AWS_REGION, MONITOR_TABLE_GSI_NAME } =
-  killIfNoEnvVariables([
-    "MONITOR_TABLE_NAME",
-    "AWS_REGION",
-    "MONITOR_TABLE_GSI_NAME",
-  ]);
+const { AWS_REGION } = killIfNoEnvVariables(["AWS_REGION"]);
 
-const ddbDocClient = DynamoDBDocument.from(
-  new DynamoDBClient({ region: AWS_REGION })
-);
 const sfnClient = new SFNClient({ region: AWS_REGION });
-
-type DynamoMonitorInfo = MonitorInfo & {
-  userId_date: string;
-};
-
-type DynamoMonitorInfoKey = keyof DynamoMonitorInfo;
 
 const dynamoDBMonitorService = new DynamoDBMonitorService();
 
 class StepFunctionsMonitorService extends MonitorService {
   monitorStorage: DynamoDBMonitorService;
-  tableName = MONITOR_TABLE_NAME;
 
   constructor() {
     super(dynamoDBMonitorService);
@@ -57,7 +40,7 @@ class StepFunctionsMonitorService extends MonitorService {
         },
       },
       prevSlots: [],
-      timeOutTime: this.getTimeout(),
+      timeOutTime: { value: this.getTimeout() },
     };
     const startCommandInput: StartExecutionCommandInput = {
       stateMachineArn: STATE_MACHINE_ARN,
@@ -107,7 +90,7 @@ class StepFunctionsMonitorService extends MonitorService {
     return sfnClient
       .send(
         new SendTaskSuccessCommand({
-          output: this.getTimeout(),
+          output: JSON.stringify({ value: this.getTimeout() }),
           taskToken: monitorInfo.execution.taskToken,
         })
       )

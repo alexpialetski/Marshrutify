@@ -22,7 +22,7 @@ export type MonitorInfo = MonitorData & {
 };
 
 export type MonitorEventData = {
-  timeOutTime: string;
+  timeOutTime: { value: string };
   monitorInfo: MonitorInfo;
   prevSlots: AvailableTimeSlot[];
 };

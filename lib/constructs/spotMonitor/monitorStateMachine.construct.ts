@@ -86,7 +86,7 @@ export class MonitorStateMachineConstruct extends Construct {
               source: monitorUnsubscriptionNotificationEvent.getEventSource(),
             },
           ],
-          resultPath: sfn.JsonPath.DISCARD, // use input instead
+          resultPath: sfn.TaskInput.fromJsonPathAt("$.timeOutTime").value, // update input timeOutTime
           taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(2)),
           integrationPattern: sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         }
@@ -116,7 +116,7 @@ export class MonitorStateMachineConstruct extends Construct {
           // sfn.Condition.timestampLessThanEqualsJsonPath( TODO
           sfn.Condition.timestampGreaterThanEqualsJsonPath(
             "$$.State.EnteredTime",
-            "$.timeOutTime"
+            "$.timeOutTime.value"
           ),
           spotMonitorTickState.next(waitX).next(isTimedOutChoice)
         )

@@ -73,7 +73,7 @@ export class EventEmitterMonitorService extends MonitorService {
       this.eventEmiter.emit("seatNotifier", {
         monitorInfo,
         prevSlots: [],
-        timeOutTime: addMinutes(new Date(), 5).toUTCString(),
+        timeOutTime: { value: addMinutes(new Date(), 5).toUTCString() },
       });
 
       return monitorInfo;
