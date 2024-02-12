@@ -18,6 +18,8 @@ export const handler: EventBridgeHandler<
 > = async (event, context) => {
   withRequest(event, context);
 
+  logger.info(event, "Event");
+
   const { monitorEventData, taskToken } = event.detail;
   const client = getClientService(monitorEventData.monitorInfo.client);
 

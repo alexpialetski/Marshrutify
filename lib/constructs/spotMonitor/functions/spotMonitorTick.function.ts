@@ -19,7 +19,7 @@ export const handler: Handler<MonitorEventData, MonitorEventData> = async (
 
   let result: MonitorEventData;
 
-  logger.info(event.timeOutTime, "getMonitorService().handleMonitorResult");
+  logger.info(event, "Event");
 
   try {
     result = await getMonitorService().handleMonitorResult({

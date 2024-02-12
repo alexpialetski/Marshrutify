@@ -108,7 +108,8 @@ export class MonitorStateMachineConstruct extends Construct {
     const definition = monitorStartedPutEventState.next(
       isTimedOutChoice
         .when(
-          sfn.Condition.timestampLessThanEqualsJsonPath(
+          // sfn.Condition.timestampLessThanEqualsJsonPath( TODO
+          sfn.Condition.timestampGreaterThanEqualsJsonPath(
             "$$.State.EnteredTime",
             "$.timeOutTime"
           ),

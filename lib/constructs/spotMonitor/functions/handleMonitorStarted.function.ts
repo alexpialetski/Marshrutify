@@ -20,10 +20,10 @@ export const handler: Handler<
 > = async (event, context) => {
   withRequest(event, context);
 
+  logger.info(event.detail, "Event.detail");
+
   const { monitorInfo } = event.detail;
   const clientService = getClientService(monitorInfo.client);
-
-  logger.info({ monitorInfo }, "clientService.notifyUser");
 
   try {
     await clientService.notifyUser(
