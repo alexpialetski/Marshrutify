@@ -24,7 +24,7 @@ export const handleStopMonitor = (
     const monitorService = getMonitorService();
 
     return monitorService
-      .getMonitorById(id)
+      .getMonitorById(id, getUserId(ctx))
       .then(monitorService.stopMonitor)
       .then(() => ctx.reply(`Monitor ${id} unsubscribed`))
       .catch(genericErrorHandler(ctx, "Error: monitorService.stopMonitor"))

@@ -12,7 +12,10 @@ export abstract class MonitorService {
     userId: UserInfo["id"]
   ): Promise<MonitorInfo[]>;
 
-  abstract getMonitorById(id: MonitorInfo["id"]): Promise<MonitorInfo>;
+  abstract getMonitorById(
+    id: MonitorInfo["id"],
+    userId: string
+  ): Promise<MonitorInfo>;
 
   abstract startMonitor(monitor: MonitorData): Promise<MonitorInfo>;
 

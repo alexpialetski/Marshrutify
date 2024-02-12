@@ -2,7 +2,7 @@ import { Telegraf } from "telegraf";
 
 import { ServiceMap } from "~/service/types";
 import { prolongMonitorQuery } from "../constants";
-import { genericErrorHandler } from "../utils";
+import { genericErrorHandler, getUserId } from "../utils";
 
 export const handleProlongMonitor = (bot: Telegraf, serviceMap: ServiceMap) => {
   bot.action(prolongMonitorQuery.baseAsRegex, (ctx, next) => {
@@ -10,7 +10,7 @@ export const handleProlongMonitor = (bot: Telegraf, serviceMap: ServiceMap) => {
     const monitorService = serviceMap.getMonitorService();
 
     return monitorService
-      .getMonitorById(id)
+      .getMonitorById(id, getUserId(ctx))
       .then((monitorInfo) =>
         monitorService.prolongMonitor({ monitorInfo, taskToken: t })
       )

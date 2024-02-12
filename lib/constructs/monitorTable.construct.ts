@@ -33,12 +33,8 @@ export class MonitorTableConstruct extends Construct {
 
     this.table.addGlobalSecondaryIndex(GSIIndex);
 
-    this.monitorTableGSINameOutput = new cdk.CfnOutput(
-      this,
-      "MonitorTableGSINameOutput",
-      {
-        value: GSIIndex.indexName,
-      }
-    );
+    this.monitorTableGSINameOutput = new cdk.CfnOutput(this, "GSINameOutput", {
+      value: GSIIndex.indexName,
+    });
   }
 }

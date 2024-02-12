@@ -15,10 +15,7 @@ export class MarshrutifyStack extends cdk.Stack {
 
     const telegramBotToken = getTelegramBotTokenSecret(this);
 
-    const httpApi = new cdk.aws_apigatewayv2.HttpApi(
-      this,
-      "MarshrutifyHttpApi"
-    );
+    const httpApi = new cdk.aws_apigatewayv2.HttpApi(this, "HttpApi");
 
     const userTable = new UserTableConstruct(this);
 
@@ -36,7 +33,7 @@ export class MarshrutifyStack extends cdk.Stack {
       STATE_MACHINE_ARN: "", // calculated later
     };
 
-    const spotMonitor = new SpotMonitorConstruct(this, "SpotMonitor", {
+    const spotMonitor = new SpotMonitorConstruct(this, "Monitor", {
       eventBus: events.EventBus.fromEventBusName(
         this,
         "AWSDefaultEventBus",

@@ -58,11 +58,17 @@ class StepFunctionsMonitorService extends MonitorService {
       .then(({ Items }) => Items as DynamoMonitorInfo[]);
   };
 
-  getMonitorById = (id: MonitorInfo["id"]): Promise<MonitorInfo> => {
+  getMonitorById = (
+    id: MonitorInfo["id"],
+    userId: string
+  ): Promise<MonitorInfo> => {
     return ddbDocClient
       .get({
         TableName: this.tableName,
-        Key: { ["id" as keyof MonitorInfo]: id },
+        Key: {
+          ["id" as DynamoMonitorInfoKey]: id,
+          ["userId" as DynamoMonitorInfoKey]: userId,
+        },
       })
       .then(({ Item }) => {
         if (!Item) {

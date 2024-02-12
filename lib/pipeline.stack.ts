@@ -9,7 +9,7 @@ class MarshrutifyStackStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props?: cdk.StageProps) {
     super(scope, id, props);
 
-    this.stack = new MarshrutifyStack(this, "MarshrutifyStack");
+    this.stack = new MarshrutifyStack(this, "Marshrutify");
   }
 }
 
