@@ -1,7 +1,7 @@
-import { BusProviderService } from "~/service/busProviderService";
+import { BusProviderService } from "~/service/busProvider/busProviderService";
 import { ClientService } from "~/service/clientService";
 import { MonitorService } from "~/service/monitorService";
-import { UserService } from "~/service/userService";
+import { UserService } from "~/service/userService/userService";
 import { BusProvider } from "~/types/busProvider";
 import { Client } from "~/types/client";
 

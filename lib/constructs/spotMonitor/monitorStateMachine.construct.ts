@@ -10,6 +10,9 @@ import { monitorUnsubscriptionNotificationEvent } from "~/events/monitorUnsubscr
 import { MonitorConstructProps } from "./types";
 import { getTelegramBotTokenSecret } from "../../utils";
 
+const MONITOR_INTERVAL = cdk.Duration.seconds(20);
+const UNSUBSCRIPTION_USER_INPUT_TIMEOUT = cdk.Duration.minutes(2);
+
 export class MonitorStateMachineConstruct extends Construct {
   public readonly stateMachine: sfn.StateMachine;
 
@@ -66,7 +69,7 @@ export class MonitorStateMachineConstruct extends Construct {
     );
 
     const waitX = new sfn.Wait(this, "Wait X Seconds", {
-      time: sfn.WaitTime.duration(cdk.Duration.seconds(20)),
+      time: sfn.WaitTime.duration(MONITOR_INTERVAL),
     });
 
     const monitorUnsubscriptionNotificationState =
@@ -87,7 +90,7 @@ export class MonitorStateMachineConstruct extends Construct {
             },
           ],
           resultPath: sfn.TaskInput.fromJsonPathAt("$.timeOutTime").value, // update input timeOutTime
-          taskTimeout: sfn.Timeout.duration(cdk.Duration.minutes(2)),
+          taskTimeout: sfn.Timeout.duration(UNSUBSCRIPTION_USER_INPUT_TIMEOUT),
           integrationPattern: sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         }
       );
@@ -113,8 +116,7 @@ export class MonitorStateMachineConstruct extends Construct {
     const definition = mixinExecutionArn.next(monitorStartedPutEventState).next(
       isTimedOutChoice
         .when(
-          // sfn.Condition.timestampLessThanEqualsJsonPath( TODO
-          sfn.Condition.timestampGreaterThanEqualsJsonPath(
+          sfn.Condition.timestampLessThanEqualsJsonPath(
             "$$.State.EnteredTime",
             "$.timeOutTime.value"
           ),

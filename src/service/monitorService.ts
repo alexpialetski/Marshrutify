@@ -1,10 +1,13 @@
 import { MonitorData, MonitorEventData, MonitorInfo } from "../types/monitor";
-import { UserInfo } from "../types/user";
-import { AvailableTimeSlot } from "./busProviderService";
+import { AvailableTimeSlot } from "./busProvider/busProviderService";
 import { DiffData, diff } from "fast-array-diff";
 import { ServiceMap } from "./types";
-import { addMinutes } from "~/utils";
+import { addMinutes, killIfNoEnvVariables } from "~/utils";
 import { MonitorStorageService } from "./monitorStorage/monitorStorageService";
+
+const { MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION } = killIfNoEnvVariables([
+  "MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION",
+]);
 
 export abstract class MonitorService {
   monitorStorage: MonitorStorageService;
@@ -21,7 +24,11 @@ export abstract class MonitorService {
 
   abstract prolongMonitor(monitorInfo: MonitorInfo): Promise<void>;
 
-  getTimeout = (): string => addMinutes(new Date(), 2).toISOString(); // TODO: change to 20 minutes
+  getTimeout = (): string =>
+    addMinutes(
+      new Date(),
+      Number(MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION)
+    ).toISOString();
 
   // for yyyy-mm-dd format
   convertToDate = (date: string): Date => new Date(date);

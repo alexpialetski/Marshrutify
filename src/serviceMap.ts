@@ -1,6 +1,6 @@
 import { TelegramClientService } from "./client/telegram/service";
-import { marshrutochkaService } from "./service/MarshrutochkaService";
-import { DynamoDBUserService } from "./service/dynamoDBUserService";
+import { marshrutochkaService } from "./service/busProvider/MarshrutochkaService";
+import { DynamoDBUserService } from "./service/userService/dynamoDBUserService";
 import { stepFunctionsMonitorService } from "./service/stepFunctionsMonitorService";
 import {
   GetBusProviderServiceFn,

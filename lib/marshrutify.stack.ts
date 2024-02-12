@@ -31,6 +31,7 @@ export class MarshrutifyStack extends cdk.Stack {
       TELEGRAM_BOT_PATH: "/telegram-bot",
       //
       STATE_MACHINE_ARN: "", // calculated later
+      MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION: "20",
     };
 
     const spotMonitor = new SpotMonitorConstruct(this, "Monitor", {

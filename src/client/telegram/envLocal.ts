@@ -1,8 +1,8 @@
 import { Telegraf } from "telegraf";
 
-import { MockedUserService } from "~/service/mockedUserService";
+import { MockedUserService } from "~/service/userService/mockedUserService";
 import { EventEmitterMonitorService } from "~/service/eventEmitterMonitorService";
-import { MarshrutochkaService } from "~/service/MarshrutochkaService";
+import { MarshrutochkaService } from "~/service/busProvider/MarshrutochkaService";
 
 import { setUpBot } from "./bot";
 import {

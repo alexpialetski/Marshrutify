@@ -87,7 +87,7 @@ export class TelegramClientService extends ClientService {
     return this.initializeTelegraf().then((telegraf) =>
       telegraf.telegram.sendMessage(
         monitorInfo.userId,
-        `Do you want to prolong suffering of your loyal slave ${monitorInfo.id}?`,
+        `Do you want to prolong monitor: ${monitorInfo.id}?`,
         Markup.inlineKeyboard([
           Markup.button.callback(
             "Prolong",

@@ -13,7 +13,6 @@ import {
   TelegramClientService,
   getTelegrafWithTokenFromSSM,
 } from "~/client/telegram/service";
-import { logger } from "~/utils/logger";
 
 const { TELEGRAM_BOT_PATH } = killIfNoEnvVariables(["TELEGRAM_BOT_PATH"]);
 
@@ -24,8 +23,6 @@ export const handler: Handler = (event, context) => {
 
   return getTelegrafWithTokenFromSSM().then((telegraf) => {
     const telegramClient = new TelegramClientService(telegraf);
-
-    logger.info(undefined, "Telegram client is set up");
 
     setUpBot(telegraf, {
       getBusProviderService,

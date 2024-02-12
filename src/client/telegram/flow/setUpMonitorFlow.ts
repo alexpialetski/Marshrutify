@@ -31,7 +31,7 @@ export const handleSetUpMonitorFlow = (
         to: userInfo.to,
         userId: userInfo.id,
       })
-      .then(() => ctx.reply("Monitor is set up. Wait for notifications"))
+      .then(() => ctx.reply("Wait for monitor updates"))
       .catch(genericErrorHandler(ctx, "Error: handleSetUpMonitorFlow"));
   });
 };
@@ -59,5 +59,5 @@ export const setUpMonitor = async (
     maxDate: busProvider.getMaxFutureDateForMonitor(),
   });
 
-  return ctx.reply("When is your adventure?", calendar.getCalendar());
+  return ctx.reply("What is departure date?", calendar.getCalendar());
 };

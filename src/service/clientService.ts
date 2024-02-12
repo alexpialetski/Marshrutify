@@ -2,7 +2,7 @@ import { Client } from "~/types/client";
 import { MonitorInfo } from "~/types/monitor";
 import { UserInfo } from "~/types/user";
 
-import { AvailableTimeSlot } from "./busProviderService";
+import { AvailableTimeSlot } from "./busProvider/busProviderService";
 
 export abstract class ClientService {
   clientName: Client;

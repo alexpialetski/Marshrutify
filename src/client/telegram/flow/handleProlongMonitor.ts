@@ -12,6 +12,7 @@ export const handleProlongMonitor = (bot: Telegraf, serviceMap: ServiceMap) => {
     return monitorService.monitorStorage
       .getMonitorById(id, getUserId(ctx))
       .then((monitorInfo) => monitorService.prolongMonitor(monitorInfo))
+      .then(() => ctx.reply(`Monitor ${id} is prolonged`))
       .catch(genericErrorHandler(ctx, "handleProlongMonitor"))
       .then(() => next());
   });

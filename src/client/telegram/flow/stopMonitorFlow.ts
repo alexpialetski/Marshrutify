@@ -26,7 +26,7 @@ export const handleStopMonitor = (
     return monitorService.monitorStorage
       .getMonitorById(id, getUserId(ctx))
       .then(monitorService.stopMonitor)
-      .then(() => ctx.reply(`Monitor ${id} unsubscribed`))
+      .then(() => ctx.reply(`Monitor ${id} has been stoped`))
       .catch(genericErrorHandler(ctx, "Error: monitorService.stopMonitor"))
       .then(() => next());
   });
@@ -40,7 +40,7 @@ export const stopMonitorFlow = async (
     .monitorStorage.getRunningMonitorsByUserId(getUserId(ctx))
     .then((monitors) => {
       if (!monitors.length) {
-        return ctx.reply("Bad news, buddy, you aint have no monitors");
+        return ctx.reply("There are no monitors available");
       }
 
       return ctx.reply(

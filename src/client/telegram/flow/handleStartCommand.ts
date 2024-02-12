@@ -13,14 +13,12 @@ export const handleStartCommand = (bot: Telegraf, serviceMap: ServiceMap) => {
 
     if (userInfo) {
       return ctx.reply(
-        "Here we go again... Just trying to sleep quitely\nTry /help if you are lost, stranger"
+        "Use /monitor to subscribe on available tickets or /info to check your current set up"
       );
     }
 
     return ctx
-      .reply(
-        `Hello, I am your assistant... Tired of this crap though...\nLet's set you up first`
-      )
+      .reply(`Hello, I am your assistant. Let's set you up first`)
       .then(() => setUpUserInfo(ctx, { userInfo, serviceMap }));
   });
 };

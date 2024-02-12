@@ -74,7 +74,7 @@ export const setUpUserInfo: Initiator<{
     return setUpDestination(ctx, {
       destDir: "from",
       getDestinations: () => busProvider.getFromDestinations(),
-      message: "What is the start of your journey, Sage?",
+      message: "What is the start of the trip?",
     });
   }
 
@@ -82,12 +82,12 @@ export const setUpUserInfo: Initiator<{
     return setUpDestination(ctx, {
       destDir: "to",
       getDestinations: () => busProvider.getToDestinations(from),
-      message: "No, for real, where are you headed?",
+      message: "What is the end of the trip",
     });
   }
 
   return ctx.sendMessage(
-    "All good, you are set up. Now go ahead and use /monitor"
+    "You are set up. Use /monitor to subscribe on specific date and get updates on ticket changes."
   );
 };
 
