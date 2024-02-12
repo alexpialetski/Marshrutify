@@ -10,12 +10,14 @@ import { handleSetUpMonitorFlow, setUpMonitor } from "./flow/setUpMonitorFlow";
 import { handleStopMonitor, stopMonitorFlow } from "./flow/stopMonitorFlow";
 import { handleInfoCommand } from "./flow/handleInfoCommand";
 import { handleStartCommand } from "./flow/handleStartCommand";
+import { handleProlongMonitor } from "./flow/handleProlongMonitor";
 
 export const setUpBot = (bot: Telegraf, serviceMap: ServiceMap): Telegraf => {
   // FLOW
   handleSetUpUserInfo(bot, serviceMap);
   handleSetUpMonitorFlow(bot, serviceMap);
   handleStopMonitor(bot, serviceMap);
+  handleProlongMonitor(bot, serviceMap);
   // COMMANDS
   handleInfoCommand(bot, serviceMap);
   handleStartCommand(bot, serviceMap);

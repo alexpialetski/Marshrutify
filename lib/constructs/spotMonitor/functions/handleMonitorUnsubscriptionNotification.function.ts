@@ -18,7 +18,7 @@ export const handler: EventBridgeHandler<
 > = async (event, context) => {
   withRequest(event, context);
 
-  logger.info(event, "Event");
+  logger.info(event.detail, "Event.detail");
 
   const {
     monitorEventData: { monitorInfo },
@@ -31,12 +31,17 @@ export const handler: EventBridgeHandler<
     await monitorService.monitorStorage.updateMonitorExecutionById({
       id: monitorInfo.id,
       userId: monitorInfo.userId,
-      execution: { ...monitorInfo.execution, taskToken: taskToken },
+      execution: { ...monitorInfo.execution, taskToken },
     });
+
+    logger.info(
+      undefined,
+      "monitorService.monitorStorage.updateMonitorExecutionById success"
+    );
   } catch (error) {
     logger.error(
       error,
-      "monitorService.monitorStorage.updateMonitorExecutionById"
+      "Error: monitorService.monitorStorage.updateMonitorExecutionById"
     );
     throw error;
   }
