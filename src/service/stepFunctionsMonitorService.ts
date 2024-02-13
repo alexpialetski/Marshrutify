@@ -63,16 +63,16 @@ class StepFunctionsMonitorService extends MonitorService {
     });
   };
 
-  async stopMonitor(monitorInfo: MonitorInfo): Promise<void> {
+  stopMonitor(monitorInfo: MonitorInfo): Promise<void> {
     const executionInfo: StopExecutionCommandInput = {
       executionArn: monitorInfo.execution.arn,
     };
 
-    await sfnClient.send(new StopExecutionCommand(executionInfo));
+    return sfnClient.send(new StopExecutionCommand(executionInfo)).then(() => {
+      logger.info(executionInfo, "StepFunctionsMonitorService: Stoped monitor");
 
-    logger.info(executionInfo, "StepFunctionsMonitorService: Stoped monitor");
-
-    return this.onMonitorStopped(monitorInfo);
+      return this.onMonitorStopped(monitorInfo);
+    });
   }
 
   onMonitorStopped(monitorInfo: MonitorInfo): Promise<void> {

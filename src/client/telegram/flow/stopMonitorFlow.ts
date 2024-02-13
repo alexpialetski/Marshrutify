@@ -25,7 +25,7 @@ export const handleStopMonitor = (
 
     return monitorService.monitorStorage
       .getMonitorById(id, getUserId(ctx))
-      .then(monitorService.stopMonitor)
+      .then((monitorInfo) => monitorService.stopMonitor(monitorInfo))
       .then(() => ctx.reply(`Monitor ${id} has been stoped`))
       .catch(genericErrorHandler(ctx, "Error: monitorService.stopMonitor"))
       .then(() => next());
