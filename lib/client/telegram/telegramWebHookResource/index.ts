@@ -24,7 +24,7 @@ export class TelegramWebhookResource extends Construct {
         entry: path.join(__dirname, "handler.function.ts"),
         handler: "handler",
         environment: {
-          BOT_TOKEN_SECRET_ARN: props.botTokenSecret.secretArn,
+          TELEGRAM_BOT_TOKEN_SECRET_ID: props.botTokenSecret.secretArn,
           WEBHOOK_URL: props.webhookUrl,
         },
       }
