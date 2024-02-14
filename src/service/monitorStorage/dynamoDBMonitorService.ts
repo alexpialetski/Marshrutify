@@ -8,16 +8,17 @@ import {
   MonitorStorageService,
 } from "./monitorStorageService";
 import { UserInfo } from "~/types/user";
-import { MonitorData, MonitorInfo } from "~/types/monitor";
-import { logger } from "~/utils/logger";
-import { PartialKeys } from "~/types/utility";
+import { MonitorInfo } from "~/types/monitor";
+import { getLambdaEnvArray } from "~/types/env";
 
 const { MONITOR_TABLE_NAME, AWS_REGION, MONITOR_TABLE_GSI_NAME } =
-  killIfNoEnvVariables([
-    "MONITOR_TABLE_NAME",
-    "AWS_REGION",
-    "MONITOR_TABLE_GSI_NAME",
-  ]);
+  killIfNoEnvVariables(
+    getLambdaEnvArray([
+      "MONITOR_TABLE_NAME",
+      "AWS_REGION",
+      "MONITOR_TABLE_GSI_NAME",
+    ])
+  );
 
 const ddbDocClient = DynamoDBDocument.from(
   new DynamoDBClient({ region: AWS_REGION })

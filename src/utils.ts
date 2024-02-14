@@ -32,7 +32,7 @@ export const getRandomInt = (max: number): number =>
 
 type ArrayAsObjectKeys<T extends string[]> = { [key in T[number]]: string };
 
-export const killIfNoEnvVariables = <T extends ENVVariable[]>(
+export const killIfNoEnvVariables = <T extends string[]>(
   requiredEnvVars: T
 ): ArrayAsObjectKeys<T> =>
   requiredEnvVars.reduce((acc, envVar) => {

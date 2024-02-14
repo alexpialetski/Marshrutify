@@ -3,13 +3,13 @@ import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
 
 import { UserInfo } from "~/types/user";
 import { killIfNoEnvVariables } from "~/utils";
+import { getLambdaEnvArray } from "~/types/env";
 
 import { UserService } from "./userService";
 
-const { AWS_REGION, USER_TABLE_NAME } = killIfNoEnvVariables([
-  "USER_TABLE_NAME",
-  "AWS_REGION",
-]);
+const { AWS_REGION, USER_TABLE_NAME } = killIfNoEnvVariables(
+  getLambdaEnvArray(["USER_TABLE_NAME", "AWS_REGION"])
+);
 
 const ddbDocClient = DynamoDBDocument.from(
   new DynamoDBClient({ region: AWS_REGION })

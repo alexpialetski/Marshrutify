@@ -9,12 +9,13 @@ import {
 
 import { MonitorData, MonitorEventData, MonitorInfo } from "~/types/monitor";
 import { killIfNoEnvVariables } from "~/utils";
+import { getLambdaEnvArray } from "~/types/env";
+import { logger } from "~/utils/logger";
 
 import { MonitorService } from "./monitorService";
-import { logger } from "~/utils/logger";
 import { DynamoDBMonitorService } from "./monitorStorage/dynamoDBMonitorService";
 
-const { AWS_REGION } = killIfNoEnvVariables(["AWS_REGION"]);
+const { AWS_REGION } = killIfNoEnvVariables(getLambdaEnvArray(["AWS_REGION"]));
 
 const sfnClient = new SFNClient({ region: AWS_REGION });
 
@@ -28,7 +29,9 @@ class StepFunctionsMonitorService extends MonitorService {
   }
 
   startMonitor = async (monitor: MonitorData): Promise<MonitorInfo> => {
-    const { STATE_MACHINE_ARN } = killIfNoEnvVariables(["STATE_MACHINE_ARN"]);
+    const { STATE_MACHINE_ARN } = killIfNoEnvVariables(
+      getLambdaEnvArray(["STATE_MACHINE_ARN"])
+    );
 
     const input: MonitorEventData = {
       monitorInfo: {

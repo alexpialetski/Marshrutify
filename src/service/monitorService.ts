@@ -1,3 +1,5 @@
+import { getLambdaEnvArray } from "~/types/env";
+
 import { MonitorData, MonitorEventData, MonitorInfo } from "../types/monitor";
 import { AvailableTimeSlot } from "./busProvider/busProviderService";
 import { DiffData, diff } from "fast-array-diff";
@@ -5,9 +7,9 @@ import { ServiceMap } from "./types";
 import { addMinutes, killIfNoEnvVariables } from "~/utils";
 import { MonitorStorageService } from "./monitorStorage/monitorStorageService";
 
-const { MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION } = killIfNoEnvVariables([
-  "MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION",
-]);
+const { MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION } = killIfNoEnvVariables(
+  getLambdaEnvArray(["MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION"])
+);
 
 export abstract class MonitorService {
   monitorStorage: MonitorStorageService;

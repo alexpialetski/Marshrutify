@@ -13,8 +13,15 @@ import {
   TelegramClientService,
   getTelegrafWithTokenFromSSM,
 } from "~/client/telegram/service";
+import { getLambdaEnvArray } from "~/types/env";
 
-const { TELEGRAM_BOT_PATH } = killIfNoEnvVariables(["TELEGRAM_BOT_PATH"]);
+const { TELEGRAM_BOT_PATH } = killIfNoEnvVariables(
+  getLambdaEnvArray([
+    "TELEGRAM_BOT_PATH",
+    "AWS_REGION",
+    "MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION",
+  ])
+);
 
 const withRequest = lambdaRequestTracker();
 

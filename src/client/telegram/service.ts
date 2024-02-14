@@ -11,11 +11,11 @@ import { ClientService } from "~/service/clientService";
 
 import { prolongMonitorQuery } from "./constants";
 import { killIfNoEnvVariables } from "~/utils";
+import { getLambdaEnvArray } from "~/types/env";
 
-const { AWS_REGION, TELEGRAM_BOT_TOKEN_SECRET_ID } = killIfNoEnvVariables([
-  "AWS_REGION",
-  "TELEGRAM_BOT_TOKEN_SECRET_ID",
-]);
+const { AWS_REGION, TELEGRAM_BOT_TOKEN_SECRET_ID } = killIfNoEnvVariables(
+  getLambdaEnvArray(["AWS_REGION", "TELEGRAM_BOT_TOKEN_SECRET_ID"])
+);
 
 const smClient = new SecretsManagerClient({ region: AWS_REGION });
 

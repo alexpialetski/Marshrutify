@@ -7,3 +7,7 @@ export type ENVVariable =
   | "TELEGRAM_BOT_PATH"
   | "USER_TABLE_NAME"
   | "MINUTES_BEFORE_MONITOR_UNSUBSCRIPTION";
+
+export type ENVVariableArray<T extends ENVVariable> = T[];
+
+export const getLambdaEnvArray = <T extends ENVVariable>(arr: T[]): T[] => arr;

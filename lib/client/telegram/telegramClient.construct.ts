@@ -7,6 +7,7 @@ import { MonitorTableConstruct } from "../../constructs/monitorTable.construct";
 import { SpotMonitorConstruct } from "../../constructs/spotMonitor";
 import { LambdaEnvVariable } from "../../types";
 import { getTelegramBotTokenSecret } from "../../utils";
+import { TelegramWebhookResource } from "./telegramWebHookResource";
 
 interface TelegramClientStackProps {
   readonly httpApi: cdk.aws_apigatewayv2.HttpApi;
@@ -32,6 +33,8 @@ export class TelegramClientConstruct extends Construct {
   ) {
     super(scope, id);
 
+    const telegramBotToken = getTelegramBotTokenSecret(this);
+
     const telegramBotHandler = new cdk.aws_lambda_nodejs.NodejsFunction(
       this,
       "TelegramBotHandler",
@@ -55,14 +58,12 @@ export class TelegramClientConstruct extends Construct {
 
     const telegramBotUrl = httpApi.apiEndpoint + telegramBotAddRoute.path;
 
-    //  TODO: set token for Telegram bot automatically
-    // new AwsCustomResource(this, 'Custom', {
-    //   onUpdate: {
-    //     service: '',
-    //     action: ''
-    //   }
-    // })
+    new TelegramWebhookResource(this, "TelegramWebhook", {
+      botTokenSecret: telegramBotToken,
+      webhookUrl: telegramBotUrl,
+    });
 
+    // IAM grants
     userTable.table.grantReadWriteData(telegramBotHandler);
     monitorTable.table.grantReadWriteData(telegramBotHandler);
     spotMonitor.stateMachine.grantExecution(
@@ -74,8 +75,6 @@ export class TelegramClientConstruct extends Construct {
       "states:SendTaskSuccess",
       "states:StartExecution"
     );
-
-    const telegramBotToken = getTelegramBotTokenSecret(this);
     telegramBotToken.grantRead(telegramBotHandler);
 
     this.urlOutput = new cdk.CfnOutput(this, "telegram-bot-url", {
