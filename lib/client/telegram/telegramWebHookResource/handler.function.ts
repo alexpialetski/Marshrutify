@@ -31,7 +31,7 @@ export const handler: Handler = async (event, context) => {
     return Promise.reject("No telegram bot token");
   }
 
-  const response = fetch(
+  const response = await fetch(
     `https://api.telegram.org/bot${botToken}/setWebhook?url=${WEBHOOK_URL}`
   );
 
