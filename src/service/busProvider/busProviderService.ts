@@ -6,7 +6,7 @@ import { addDays } from "../../utils";
 export type AvailableTimeSlot = string; // like 12:45
 
 export abstract class BusProviderService {
-  abstract provider: BusProvider;
+  provider: BusProvider;
 
   abstract getFromDestinations: () => Promise<DestinationInfo[]>;
 

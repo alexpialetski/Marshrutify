@@ -1,0 +1,8 @@
+{
+  "watch": ["docs"],
+  "ext": "ts,html",
+  "execMap": {
+    "ts": "node --loader ts-node/esm --project docs/tsconfig.json"
+  },
+  "ignore": ["docs/dist/"]
+}

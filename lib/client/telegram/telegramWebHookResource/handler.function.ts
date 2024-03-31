@@ -35,7 +35,7 @@ export const handler: Handler = async (event, context) => {
     `https://api.telegram.org/bot${botToken}/setWebhook?url=${WEBHOOK_URL}`
   );
 
-  logger.info("Telegram setWebhook response:", response);
+  logger.info(response, "Telegram setWebhook response");
 
   return {
     statusCode: 200,

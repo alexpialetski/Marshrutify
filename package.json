@@ -6,8 +6,9 @@
   },
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w",
     "test": "jest",
+    "build:docs": "vite build docs",
+    "develop:docs": "vite serve docs",
     "cdk": "cdk",
     "telegram:client": "nodemon -r dotenv/config --inspect src/client/telegram/envLocal.ts",
     "setup:env": "bash setup_env.sh"
@@ -28,7 +29,9 @@
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "~5.3.3"
+    "typescript": "~5.3.3",
+    "vite": "^5.1.1",
+    "vite-tsconfig-paths": "^4.3.1"
   },
   "dependencies": {
     "@aws-sdk/lib-dynamodb": "^3.503.1",
@@ -37,6 +40,7 @@
     "columnify": "^1.6.0",
     "constructs": "^10.0.0",
     "fast-array-diff": "^1.1.0",
+    "gojs": "^2.3.14",
     "node-fetch": "^3.3.2",
     "node-fetch-commonjs": "^3.3.2",
     "node-html-parser": "^6.1.12",
